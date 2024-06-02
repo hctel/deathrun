@@ -18,3 +18,5 @@ buildNumber.properties
 .settings/org.eclipse.core.resources.prefs
 .settings/org.eclipse.jdt.core.prefs
 pom.xml
+pom.xml
+.settings/org.eclipse.jdt.core.prefs
