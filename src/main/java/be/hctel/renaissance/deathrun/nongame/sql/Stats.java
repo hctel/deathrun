@@ -15,9 +15,9 @@ import org.bukkit.entity.Player;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import be.hctel.renaissance.hideandseek.gamespecific.enums.GameAchievement;
-import be.hctel.renaissance.hideandseek.gamespecific.enums.JoinMessages;
-import be.hctel.renaissance.hideandseek.nongame.utils.Utils;
+import be.hctel.renaissance.cosmetics.GameAchievement;
+import be.hctel.renaissance.cosmetics.JoinMessages;
+import be.hctel.renaissance.deathrun.nongame.utils.Utils;
 
 
 /**
@@ -57,7 +57,7 @@ public class Stats {
 	public void load(Player player) {
 		String json = baseJson;
 		int joinMessage = 0;
-		JSONArray unlockedjms = new JSONArray("[\"HIDE\"]");
+		JSONArray unlockedjms = new JSONArray("[\"RUN\"]");
 		String uuid = Utils.getUUID(player);
 		try {
 			Statement st = con.createStatement();
