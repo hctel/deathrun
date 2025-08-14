@@ -39,6 +39,24 @@ public class TestTrapCommand implements CommandExecutor {
 				testTrap.startTrap();
 				player.sendRawMessage(testTrap.getTrapDetails());
 				return true;
+			} else if(args.length == 10) {
+				Plugin plugin = DeathRun.plugin;
+				int x1 = Integer.parseInt(args[0]);
+				int y1 = Integer.parseInt(args[1]);
+				int z1 = Integer.parseInt(args[2]);
+				Location startLocation = new Location(player.getWorld(), x1, y1, z1);
+				int x2 = Integer.parseInt(args[3]);
+				int y2 = Integer.parseInt(args[4]);
+				int z2 = Integer.parseInt(args[5]);
+				Location stopLocation = new Location(player.getWorld(), x2, y2, z2);
+				int width = Integer.parseInt(args[6]);
+				int steps = Integer.parseInt(args[7]);
+				long delay = Long.parseLong(args[8]);
+				TrapType type = TrapType.valueOf(args[9]);
+				Trap testTrap = new Trap(plugin, startLocation, stopLocation, width, steps, delay, type, 2*20L, 60*20L);
+				testTrap.startTrap();
+				player.sendRawMessage(testTrap.getTrapDetails());
+				return true;
 			}
 		}
 		return false;
