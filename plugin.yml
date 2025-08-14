@@ -1,0 +1,9 @@
+name: DeathRun
+author: hctel
+version: 00.0Beta
+main: be.hctel.renaissance.deathrun.DeathRun
+commands:
+  testtrap:
+    usage: /traptest <startPos x-y-z> <endPos x-y-z> <modelStartPos x-y-z> <width> <steps> <delay> <type>
+    permission: dr.admin
+    description: tests a trap

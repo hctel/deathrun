@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Config {
+public class Config extends JSONObject {
 	private File file;
 	private JSONObject config;
 	
@@ -24,7 +24,7 @@ public class Config {
 		}
 		InputStream is = new FileInputStream(file);
 		String out = IOUtils.toString(is, "UTF-8");
-		if(out == null) {
+		if(out == null || (!out.startsWith("{") && !out.endsWith("}"))) {
 			config = new JSONObject();
 		} else {
 			config = new JSONObject(out);
@@ -33,12 +33,7 @@ public class Config {
 		
 	}
 	
-	public JSONObject getConfig() {
-		return config;
-	}
-	
-	public void save(JSONObject toSave) throws IOException {
-		config = toSave;
+	public void save() throws IOException {
 		FileWriter writer = new FileWriter(this.file);
 		writer.write(config.toString());
 		writer.flush();

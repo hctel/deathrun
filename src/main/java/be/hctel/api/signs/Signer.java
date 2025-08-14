@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -16,7 +17,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import be.hctel.api.config.Config;
-import be.hctel.renaissance.deathrun.DeathRun;
 
 /**
  * A Sign-Interact helper for Java spigot plugins
@@ -26,7 +26,6 @@ import be.hctel.renaissance.deathrun.DeathRun;
 public class Signer implements Listener {
 	Plugin plugin;
 	Config config;
-	JSONObject jsonConfig;
 	HashMap<Block, SignData> signs = new HashMap<>();
 	HashMap<Player, String> editors = new HashMap<>();
 	boolean allSignsLoaded = false;
@@ -44,7 +43,6 @@ public class Signer implements Listener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		this.jsonConfig = config.getConfig();
 	}
 	
 	/**
@@ -55,7 +53,7 @@ public class Signer implements Listener {
 	public void addEditor(Player player, String operation) {
 		loadSigns();
 		editors.put(player, operation);
-		player.sendMessage(DeathRun.header + "§aEntered Signer editor mode");
+		player.sendMessage("§aEntered Signer editor mode");
 	}
 	
 	/**
@@ -70,7 +68,7 @@ public class Signer implements Listener {
 	 * Listener listening for a {@link PlayerInteractEvent}
 	 * @param e The PlayerInteractEvent
 	 */
-	@EventHandler
+	@EventHandler(priority = EventPriority.NORMAL)
 	public void listenersEvent(PlayerInteractEvent e) {
 		loadSigns();
 		if(e.getClickedBlock() == null) return;
@@ -88,7 +86,6 @@ public class Signer implements Listener {
 				case QUEUE:
 					break;
 				case SERVER:
-					DeathRun.bm.sendToServer(p, clickedData.getData().replace(" ", ""));
 					break;
 				case TELEPORT:
 					break;
@@ -111,15 +108,15 @@ public class Signer implements Listener {
 		if(editors.containsKey(e.getPlayer()) && e.getPlayer().isOp()) {
 			if(editors.get(e.getPlayer()).equalsIgnoreCase("remove ")) {
 				signs.remove(e.getBlock());
-				jsonConfig.remove(e.getBlock().getLocation().getWorld().getName() + "," + e.getBlock().getLocation().getBlockX() + "," + e.getBlock().getLocation().getBlockY() + "," + e.getBlock().getLocation().getBlockZ());
-				e.getPlayer().sendMessage(DeathRun.header + "§aRemoved this sign from Signer.");
+				config.remove(e.getBlock().getLocation().getWorld().getName() + "," + e.getBlock().getLocation().getBlockX() + "," + e.getBlock().getLocation().getBlockY() + "," + e.getBlock().getLocation().getBlockZ());
+				e.getPlayer().sendMessage("§aRemoved this sign from Signer.");
 				editors.remove(e.getPlayer());
 			} else {
 				if(!(editors.get(e.getPlayer()).equalsIgnoreCase("remove "))) {
 					String[] editData = editors.get(e.getPlayer()).split(",");
 					SignType type = SignType.getfromName(editData[0]);
 					if(type == null) {
-						e.getPlayer().sendMessage(DeathRun.header + "§cPlease enter a correct sign type!");
+						e.getPlayer().sendMessage("§cPlease enter a correct sign type!");
 						e.setCancelled(true);
 						return;
 					}
@@ -128,8 +125,8 @@ public class Signer implements Listener {
 					JSONObject signJson = new JSONObject();
 					signJson.put("type", type.getName());
 					signJson.put("data", data.getData());
-					jsonConfig.put(data.getLocation().getWorld().getName() + "," + data.getLocation().getBlockX() + "," + data.getLocation().getBlockY() + "," + data.getLocation().getBlockZ(), signJson);
-					e.getPlayer().sendMessage(DeathRun.header + "§aAdded the sign to Signer.");
+					config.put(data.getLocation().getWorld().getName() + "," + data.getLocation().getBlockX() + "," + data.getLocation().getBlockY() + "," + data.getLocation().getBlockZ(), signJson);
+					e.getPlayer().sendMessage("§aAdded the sign to Signer.");
 					editors.remove(e.getPlayer());
 				}
 				}
@@ -150,7 +147,6 @@ public class Signer implements Listener {
 					case QUEUE:
 						break;
 					case SERVER:
-						DeathRun.bm.sendToServer(p, clickedData.getData().replace(" ", ""));
 						break;
 					case TELEPORT:
 						break;
@@ -170,7 +166,7 @@ public class Signer implements Listener {
 	public void onDisable(){
 		plugin.getLogger().info("Saving signs...");
 		try {
-			config.save(jsonConfig);
+			config.save();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -180,9 +176,9 @@ public class Signer implements Listener {
 	private void loadSigns() {
 		if(!allSignsLoaded) {
 			plugin.getLogger().info("Loading signs...");
-			for(String key : jsonConfig.keySet()) {
+			for(String key : config.keySet()) {
 				String[] signPos = key.split(",");
-				SignData data = new SignData(SignType.getfromName(jsonConfig.getJSONObject(key).getString("type")), jsonConfig.getJSONObject(key).getString("data"), signPos);
+				SignData data = new SignData(SignType.getfromName(config.getJSONObject(key).getString("type")), config.getJSONObject(key).getString("data"), signPos);
 				if(data.getLocation().getBlock().getType() != Material.SIGN && data.getLocation().getBlock().getType() != Material.SIGN_POST && data.getLocation().getBlock().getType() != Material.WALL_SIGN) {
 					plugin.getLogger().warning("Wrong block type detected for sign at " + signPos[1] + "," + signPos[2] + "," + signPos[3] + " in world " + signPos[0]);
 					plugin.getLogger().warning("Detected type: " + data.getLocation().getBlock().getType());

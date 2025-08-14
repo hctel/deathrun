@@ -25,8 +25,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 
+import be.hctel.api.Utils;
 import be.hctel.api.runnables.ArgumentRunnable;
-import be.hctel.renaissance.deathrun.nongame.utils.Utils;
 import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_12_R1.PacketPlayOutEntityHeadRotation;
@@ -58,6 +58,7 @@ public class FakePlayer extends EntityPlayer implements Listener {
 	private int id;
 	private ProtocolManager manager = ProtocolLibrary.getProtocolManager();
 	private HashMap<HumanEntity, Long> cooldown = new HashMap<HumanEntity, Long>();
+	private ArrayList<Player> excludeList = new ArrayList<>();
 	Plugin plugin;
 	ArrayList<Player> shownTo = new ArrayList<Player>();
 

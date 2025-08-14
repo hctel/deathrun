@@ -1,4 +1,4 @@
-package be.hctel.renaissance.deathrun.nongame.utils;
+package be.hctel.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,8 +11,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.RecursiveTask;
 
@@ -23,20 +27,23 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftFallingBlock;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,6 +51,7 @@ import com.comphenix.packetwrapper.WrapperPlayServerBlockChange;
 import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
 import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity;
 import com.comphenix.packetwrapper.WrapperPlayServerWorldBorder;
+import com.comphenix.protocol.wrappers.EnumWrappers.Direction;
 import com.comphenix.protocol.wrappers.EnumWrappers.WorldBorderAction;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 
@@ -115,7 +123,8 @@ public class Utils {
 	 */
 	@SuppressWarnings("deprecation")
 	public static String getFormattedName(ItemStack item) {
-		if (item.getData().getData() != 0) return item.getType().toString();
+		if(item.getType() == Material.REDSTONE_BLOCK) return "REDSTONE_BLOCK:0";
+		else if (item.getData().getData() == 0) return item.getType().toString();
 		else return item.getType().toString() + ":" + item.getData().getData();
 	}
 	/**
@@ -144,7 +153,12 @@ public class Utils {
 	 * @return the name of te ItemStack
 	 */
 	public static String getUserItemName(ItemStack it) {
-		Material a = it.getType();
+		Material a;
+		try {
+			a = it.getType();
+		} catch (NullPointerException e) {
+			a = Material.STONE;
+		}		
 		String aN = a.toString().toLowerCase().replace('_', ' ');
 		String aN1 = StringUtils.capitalize(aN);
 		@SuppressWarnings("deprecation")
@@ -339,14 +353,11 @@ public class Utils {
 	 * @param location the location where the firewxork should be spawned
 	 */
 	public static void spawnFireworks(Location location){
-        Firework fw = (Firework) location.getWorld().spawnEntity(location, EntityType.FIREWORK);
+        Firework fw = location.getWorld().spawn(location, Firework.class);
         FireworkMeta fwm = fw.getFireworkMeta();
-       
         fwm.setPower(1);
-        fwm.addEffect(FireworkEffect.builder().withColor(Color.RED).withFade(Color.ORANGE).flicker(true).build());
-       
+        fwm.addEffects(FireworkEffect.builder().withColor(Color.RED).withFade(Color.ORANGE).flicker(true).build());
         fw.setFireworkMeta(fwm);
-        fw.detonate();	
         }
 	/**
 	 * Maps a value into a new range
@@ -512,6 +523,27 @@ public class Utils {
 		return toReturn;
 		
 	}
+	
+	public static ItemStack createQuickItemStack(Material material, short damage, String name, String...lore) {
+		return createQuickItemStack(material, damage, false, name, lore);
+		
+	}
+	
+	public static ItemStack createQuickItemStack(Material material, short damage, boolean enchanted, String name, String...lore) {
+		ItemStack toReturn = new ItemStack(material, 1, damage);
+		ItemMeta meta = toReturn.getItemMeta();
+		meta.setDisplayName(name);
+		if(enchanted) {
+			meta.addEnchant(Enchantment.DAMAGE_ARTHROPODS, 1, true);
+			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		}
+		List<String> loreList = new ArrayList<>();
+		for(String S : lore) loreList.add(S);
+		meta.setLore(loreList);
+		toReturn.setItemMeta(meta);
+		return toReturn;
+		
+	}
 	/**
 	 * A quick way to create an ItemStack and make the code cleaner
 	 * @deprecated This method uses an anmbiguous data type object
@@ -600,7 +632,7 @@ public class Utils {
 		WrapperPlayServerSpawnEntity fbs = new WrapperPlayServerSpawnEntity();
 			int entityID = new Random().nextInt();
 	        fbs.setEntityID(entityID);
-	        fbs.setObjectData(blockID | (data << 0x10));
+	        fbs.setObjectData(blockID | (data << 0x10));	
 	        Location l = player.getLocation();
 	        fbs.setX(l.getX());
 	        fbs.setY(l.getY());
@@ -721,13 +753,13 @@ public class Utils {
 		cp.getHandle().playerConnection.sendPacket((PacketPlayOutWorldBorder) p.getHandle().getHandle());
 	}
 	public static boolean doubleContains(List<Entity> list, ArrayList<Player> seekers) {
-		for(Entity elem : list) {
-			if(elem instanceof Player && seekers.contains(elem)) return true;
+		for(Player P : seekers) {
+			if(list.contains(P)) return true;
 			else continue;
 		}
 		return false;
 	}
-	 private static String readAll(Reader rd) throws IOException {
+	private static String readAll(Reader rd) throws IOException {
 		    StringBuilder sb = new StringBuilder();
 		    int cp;
 		    while ((cp = rd.read()) != -1) {
@@ -735,7 +767,7 @@ public class Utils {
 		    }
 		    return sb.toString();
 		  }
-
+	
 		  public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
 		    InputStream is = new URL(url).openStream();
 		    try {
@@ -746,51 +778,128 @@ public class Utils {
 		    } finally {
 		      is.close();
 		    }
-		  }
-		  public static String getHTTPResponse(String url, int timeout) {
-			    HttpURLConnection c = null;
-			    try {
-			        URL u = new URL(url);
-			        c = (HttpURLConnection) u.openConnection();
-			        c.setRequestMethod("GET");
-			        c.setRequestProperty("Content-length", "0");
-			        c.setRequestProperty("content-type", "text/plain; charset=utf-8");
-			        c.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36");
-			        c.setUseCaches(false);
-			        c.setAllowUserInteraction(false);
-			        c.setConnectTimeout(timeout);
-			        c.setReadTimeout(timeout);
-			        c.connect();
-			        int status = c.getResponseCode();
+	}
+    public static String getHTTPResponse(String url, int timeout) {
+		    HttpURLConnection c = null;
+		    try {
+		        URL u = new URL(url);
+		        c = (HttpURLConnection) u.openConnection();
+		        c.setRequestMethod("GET");
+		        c.setRequestProperty("Content-length", "0");
+		        c.setRequestProperty("content-type", "text/plain; charset=utf-8");
+		        c.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36");
+		        c.setUseCaches(false);
+		        c.setAllowUserInteraction(false);
+		        c.setConnectTimeout(timeout);
+		        c.setReadTimeout(timeout);
+		        c.connect();
+		        int status = c.getResponseCode();
 
-			        switch (status) {
-			            case 200:
-			            case 201:
-			                BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
-			                StringBuilder sb = new StringBuilder();
-			                String line;
-			                while ((line = br.readLine()) != null) {
-			                    sb.append(line+"\n");
-			                }
-			                br.close();
-			                return sb.toString();
-			        }
+		        switch (status) {
+		            case 200:
+		            case 201:
+		                BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+		                StringBuilder sb = new StringBuilder();
+		                String line;
+		                while ((line = br.readLine()) != null) {
+		                    sb.append(line+"\n");
+		                }
+		                br.close();
+		                return sb.toString();
+		        }
 
-			    } catch (MalformedURLException ex) {
-			       ex.printStackTrace();
-			    } catch (IOException ex) {
-			    	ex.printStackTrace();
-			    } finally {
-			       if (c != null) {
-			          try {
-			              c.disconnect();
-			          } catch (Exception ex) {
-			        	  ex.printStackTrace();
-			          }
-			       }
-			    }
-			    return null;
-			}
+		    } catch (MalformedURLException ex) {
+		       ex.printStackTrace();
+		    } catch (IOException ex) {
+		    	ex.printStackTrace();
+		    } finally {
+		       if (c != null) {
+		          try {
+		              c.disconnect();
+		          } catch (Exception ex) {
+		        	  ex.printStackTrace();
+		          }
+		       }
+		    }
+		    return null;
+	  }
+	  
+	  public static <K,V extends Comparable<? super V>> 
+          List<Entry<K, V>> entriesSortedByValues(Map<K,V> map) {
+
+		  List<Entry<K,V>> sortedEntries = new ArrayList<Entry<K,V>>(map.entrySet());
 		
+		  Collections.sort(sortedEntries, 
+		          new Comparator<Entry<K,V>>() {
+		              @Override
+		              public int compare(Entry<K,V> e1, Entry<K,V> e2) {
+		                  return e2.getValue().compareTo(e1.getValue());
+		              }
+		          }
+		  );
+		
+		  return sortedEntries;
+	  }
+	  
+	  public static Direction getPerpendicular(Direction direction) {
+		  switch(direction) {
+		case DOWN:
+			return Direction.EAST;
+		case EAST:
+			return Direction.SOUTH;
+		case NORTH:
+			return Direction.EAST;
+		case SOUTH:
+			return Direction.WEST;
+		case UP:
+			return Direction.NORTH;
+		case WEST:
+			return Direction.NORTH;		
+		default:
+			return Direction.NORTH;
+		  }
+	  }
+	  
+	  public static Vector getDeltaFromDirection(double multiplier, Direction direction) {
+		  switch(direction) {
+		case DOWN:
+			return new Vector(0, -multiplier, 0);
+		case EAST:
+			return new Vector(multiplier, 0, 0);
+		case NORTH:
+			return new Vector(0, 0, -multiplier);
+		case SOUTH:
+			return new Vector(0, 0, multiplier);
+		case UP:
+			return new Vector(0, multiplier, 0);
+		case WEST:
+			return new Vector(-multiplier, 0, 0);
+		default:
+			return new Vector(0, 0, 0);
+		  }
+	  }
+	  
+	  public static Vector getDeltaFromDirection(Direction direction) {
+		  return getDeltaFromDirection(1, direction);
+	  }
+	  
+	  public static int findDistance(Location locationA, Location locationB, Direction direction) {
+		  Location result = locationB.subtract(locationA);
+		  if(direction == Direction.DOWN | direction == Direction.UP) {
+			  return result.getBlockY();
+		  } else if(direction == Direction.EAST | direction == Direction.WEST) {
+			  return result.getBlockX();
+		  } else {
+			  return result.getBlockZ();
+		  }
+	  }
+	  
+	  @SuppressWarnings("deprecation")
+	public static void transformToFallingBlock(Block b) {
+		  	Material type = b.getType();
+		  	byte data = b.getData();
+		  	b.setType(Material.AIR);
+			b.getWorld().spawnFallingBlock(b.getLocation().clone().add(0.5, 0, 0.5), type, data);
+		}
  
 }

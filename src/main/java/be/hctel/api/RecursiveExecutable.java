@@ -1,4 +1,4 @@
-package be.hctel.renaissance.deathrun.nongame.utils;
+package be.hctel.api;
 
 /*
  * This file is a part of the Renaissance Project API
