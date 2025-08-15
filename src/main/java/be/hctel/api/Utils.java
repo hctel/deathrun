@@ -901,5 +901,9 @@ public class Utils {
 		  	b.setType(Material.AIR);
 			b.getWorld().spawnFallingBlock(b.getLocation().clone().add(0.5, 0, 0.5), type, data);
 		}
+	  
+	  public static String locationToString(Location loc) {
+		  return String.format("(%d, %d, %d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	  }
  
 }
