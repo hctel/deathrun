@@ -4,5 +4,5 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 public abstract class TrapMethod {
-	public abstract void trapStep(Location point, int width, int stepnr, Vector direction, Vector crossVector);
+	public abstract void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector);
 }

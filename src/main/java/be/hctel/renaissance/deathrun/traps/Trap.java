@@ -2,6 +2,7 @@ package be.hctel.renaissance.deathrun.traps;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -37,7 +38,7 @@ public class Trap {
 	
 	private int width;
 	private int length;
-	
+	private int height = 1;
 	
 	private double stepDistance;
 	
@@ -148,12 +149,49 @@ public class Trap {
 		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
 		this.length = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? this.trapArea.getBlockZ() : this.trapArea.getBlockX());
 		
-		if(type.getOrientation() == TrapOrientation.HORIZONTAL) {
-			this.travelDirection = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? new Vector(0, 0, this.trapArea.getBlockZ()/Math.abs(this.trapArea.getBlockZ())) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
-			this.crossVector = travelDirection.clone().getCrossProduct(new Vector(0,1,0));
-		} else {
+		if(type.getOrientation() == TrapOrientation.VERTICAL) {
 			this.travelDirection = (this.trapArea.getBlockX() == 0 ? new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
 			this.crossVector = new Vector(0, this.trapArea.getBlockY()/Math.abs(this.trapArea.getBlockY()), 0);
+		} else {
+			this.travelDirection = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? new Vector(0, 0, this.trapArea.getBlockZ()/Math.abs(this.trapArea.getBlockZ())) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
+			this.crossVector = travelDirection.clone().getCrossProduct(new Vector(0,1,0));
+		}
+		this.stepDistance = Math.abs(((double) this.length)/((double) this.steps-1));
+		this.travelStep = travelDirection.clone();
+		this.travelStep.multiply(this.stepDistance);
+		this.workLocation = startLocation.clone();
+		this.width = Math.abs(this.width);
+		setupTasks();
+		
+	}
+	
+	public Trap(Plugin plugin, Location startLocation, Location stopLocation, Location modelLocation, int width, int height, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
+		this.plugin = plugin;
+		this.type = type;
+		this.startLocation = startLocation;
+		this.stopLocation = stopLocation;
+		this.modelStartLocation = modelLocation;
+		this.steps = steps;
+		this.delay = delay;
+		this.method = this.type.getMethod();
+		this.trapReset = trapReset;
+		this.trapCooldown = trapCooldown;
+		this.height = Math.abs(height);
+		
+		this.height = (startLocation.getBlockY() < stopLocation.getBlockY() ? this.height : -this.height);		
+		
+		this.xSize = stopLocation.clone().subtract(startLocation).getBlockX();
+		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
+		this.width = (type.getOrientation() == TrapOrientation.VERTICAL ? Math.abs(ySize)+1 : width);
+		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
+		this.length = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? this.trapArea.getBlockZ() : this.trapArea.getBlockX());
+		
+		if(type.getOrientation() == TrapOrientation.VERTICAL) {
+			this.travelDirection = (this.trapArea.getBlockX() == 0 ? new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
+			this.crossVector = new Vector(0, Integer.signum(trapArea.getBlockY()), 0);
+		} else {
+			this.travelDirection = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? new Vector(0, 0, this.trapArea.getBlockZ()/Math.abs(this.trapArea.getBlockZ())) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
+			this.crossVector = travelDirection.clone().getCrossProduct(new Vector(0,1,0));
 		}
 		this.stepDistance = Math.abs(((double) this.length)/((double) this.steps-1));
 		this.travelStep = travelDirection.clone();
@@ -187,12 +225,19 @@ public class Trap {
 						Location workLocDeep = workLoc.clone();
 						Location modelWorkLocDeep = modelWorkLoc.clone();
 						for(int j = 0; j < Math.abs(width); j++) {
-							Material modelMat = modelWorkLocDeep.getBlock().getType();
-							if(modelMat != Material.AIR) {
-								byte modelData = modelWorkLocDeep.getBlock().getData();
-								Block targetBlock = workLocDeep.getBlock();
-								targetBlock.setType(modelMat);
-								targetBlock.setData(modelData);
+							Location workLocDeepDeep = workLocDeep.clone();
+							Location modelWorkLocDeepDeep = modelWorkLocDeep.clone();
+							for(int h = Math.min(height, 0); h < Math.max(0, height); h++) {
+								Material modelMat = modelWorkLocDeepDeep.getBlock().getType();
+								if(modelMat != Material.AIR) {
+									byte modelData = modelWorkLocDeepDeep.getBlock().getData();
+									Block targetBlock = workLocDeepDeep.getBlock();
+									targetBlock.setType(modelMat);
+									targetBlock.setData(modelData);
+								}
+								//System.out.println(height + " blocks high");
+								workLocDeepDeep.add(0,Integer.signum(height),0);
+								modelWorkLocDeepDeep.add(0,Integer.signum(height),0);
 							}
 							workLocDeep.add(crossVector);
 							modelWorkLocDeep.add(crossVector);
@@ -208,8 +253,9 @@ public class Trap {
 
 				@Override
 				public void run() {
+					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
 					for(int i = 0; i < steps; i++) {
-						method.trapStep(workLocation, width, stepnr, travelDirection, crossVector);
+						method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector);
 						workLocation.add(travelStep);
 						stepnr++;
 					}
@@ -221,7 +267,8 @@ public class Trap {
 
 				@Override
 				public void run() {
-					method.trapStep(workLocation, width, stepnr, travelDirection, crossVector);
+					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
+					method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector);
 					workLocation.add(travelStep);
 					stepnr++;
 					if(stepnr == steps) cancel();

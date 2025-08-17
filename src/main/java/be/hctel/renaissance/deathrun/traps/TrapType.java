@@ -13,9 +13,26 @@ import be.hctel.api.Utils;
 import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 
 public enum TrapType {
+	PARKOUR_DISAPPEAR(new TrapMethod() {
+
+		@Override
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {
+			Location workLocation = point.clone();
+			for(int i = 0; i < width; i++) {
+				Location workLocationDeep = workLocation.clone();
+				for(int h = Math.min(height, 0); h < Math.max(0, height); h++) {
+					Block b = workLocationDeep.getBlock();
+					if(b.getType() == Material.STAINED_CLAY && b.getData() == (byte) 14) b.setType(Material.AIR);
+					workLocationDeep.add(0,Integer.signum(height),0);
+				}
+				workLocation.add(crossVector);
+			}
+		}
+		
+	}, false, true, TrapOrientation.TRID),
 	LANTERN_DISAPPEAR(new TrapMethod() {
 		@Override
-		public void trapStep(Location point, int width, int stepnr, Vector direction, Vector crossVector) {	
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {	
 			Location workLocation = point.clone();
 			for(int i = 0; i < width; i++) {
 				Block b = workLocation.getBlock();
@@ -23,25 +40,25 @@ public enum TrapType {
 				workLocation.add(crossVector);
 			}
 		}
-	}, true, TrapOrientation.HORIZONTAL),	
+	}, false, true, TrapOrientation.HORIZONTAL),	
 	
 	LADDER_DISPAWN(new TrapMethod() {
 
 		@Override
-		public void trapStep(Location point, int height, int stepnr, Vector direction, Vector crossVector) {
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {
 			Location workLocation = point.clone();
-			for(int i = 0; i < height; i++) {
+			for(int i = 0; i < width; i++) {
 				workLocation.getBlock().setType(Material.AIR);
 				workLocation.add(crossVector);
 			}
 		}
 		
-	}, true, TrapOrientation.VERTICAL),
+	}, false, true, TrapOrientation.VERTICAL),
 	
 	FIRE_TRAIL(new TrapMethod() {
 
 		@Override
-		public void trapStep(Location point, int width, int stepnr, Vector direction, Vector crossVector) {
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {
 			Location workLocation = point.clone().add(0.5, 0.5, 0);
 			for(int i = 0; i < width; i++) {
 				workLocation.getWorld().spawnParticle(Particle.FLAME, workLocation, 1, 0, 0, 0, 0);
@@ -55,11 +72,11 @@ public enum TrapType {
 			}
 		}
 		
-	}, false, TrapOrientation.HORIZONTAL),
+	}, true, false, TrapOrientation.HORIZONTAL),
 	
 	GLASS_FLOOR(new TrapMethod() {
 		@Override
-		public void trapStep(Location point, int width, int stepnr, Vector direction, Vector crossVector) {	
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {	
 			Location workLocation = point.clone();
 			point.getWorld().playSound(point, Sound.BLOCK_NOTE_PLING, 5f, (float) (0.5+(((float)stepnr)/20f)));
 			for(int i = 0; i < width; i++) {
@@ -67,19 +84,28 @@ public enum TrapType {
 				workLocation.add(crossVector);
 			}
 		}
-	}, true, TrapOrientation.HORIZONTAL);
+	}, true, true, TrapOrientation.HORIZONTAL);
+	
+	
 	
 	private TrapMethod method;
+	private boolean silent;
 	private boolean resets;
 	private TrapOrientation orientation;
-	private TrapType(TrapMethod method, boolean resets, TrapOrientation orientation) {
+	
+	private TrapType(TrapMethod method, boolean silent, boolean resets, TrapOrientation orientation) {
 		this.method = method;
+		this.silent = silent;
 		this.resets = resets;
 		this.orientation = orientation;
 	}
 	
 	public TrapMethod getMethod() {
 		return method;
+	}
+	
+	public boolean isSilent() {
+		return this.silent;
 	}
 	
 	public boolean doesReset() {

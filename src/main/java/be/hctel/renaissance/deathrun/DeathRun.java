@@ -4,6 +4,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import be.hctel.renaissance.deathrun.commands.TestTrapCommand;
+import be.hctel.renaissance.deathrun.listeners.BlockListeners;
 import be.hctel.renaissance.deathrun.listeners.PlayerListener;
 
 public class DeathRun extends JavaPlugin {
@@ -32,5 +33,6 @@ public class DeathRun extends JavaPlugin {
 	
 	private void registerListeners() {
 		getServer().getPluginManager().registerEvents(new PlayerListener(), plugin);
+		getServer().getPluginManager().registerEvents(new BlockListeners(), plugin);
 	}
 }
