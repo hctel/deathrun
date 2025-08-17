@@ -5,7 +5,9 @@ import be.hctel.api.config.Config;
 
 public class MapManager {
 	
+	@SuppressWarnings("unused")
 	private Config mapConfig;
+	@SuppressWarnings("unused")
 	private Plugin plugin;
 	
 	

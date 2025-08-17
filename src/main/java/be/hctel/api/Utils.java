@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,10 +27,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftFallingBlock;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
@@ -47,26 +43,11 @@ import org.bukkit.util.Vector;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.comphenix.packetwrapper.WrapperPlayServerBlockChange;
-import com.comphenix.packetwrapper.WrapperPlayServerEntityDestroy;
-import com.comphenix.packetwrapper.WrapperPlayServerSpawnEntity;
-import com.comphenix.packetwrapper.WrapperPlayServerWorldBorder;
 import com.comphenix.protocol.wrappers.EnumWrappers.Direction;
-import com.comphenix.protocol.wrappers.EnumWrappers.WorldBorderAction;
-import com.comphenix.protocol.wrappers.WrappedBlockData;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.v1_12_R1.BlockPosition;
-import net.minecraft.server.v1_12_R1.EntityFallingBlock;
-import net.minecraft.server.v1_12_R1.IChatBaseComponent;
-import net.minecraft.server.v1_12_R1.IChatBaseComponent.ChatSerializer;
-import net.minecraft.server.v1_12_R1.PacketPlayOutBlockChange;
-import net.minecraft.server.v1_12_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerListHeaderFooter;
-import net.minecraft.server.v1_12_R1.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_12_R1.PacketPlayOutWorldBorder;
 
 /*
  * This file is a part of the Renaissance Project API
@@ -81,25 +62,6 @@ public class Utils {
 	 */
 	public static int convertToInt(String input) throws NumberFormatException {
 		return Integer.parseInt(input);
-	}
-	/**
-	 * Gets an ItemStack from a numerical ID.
-	 * @param id The numerica ID of the item
-	 * @return the ItemStack
-	 */
-	@SuppressWarnings("deprecation")
-	public static ItemStack getItemStackFromNumericalID(int id) {
-		return new ItemStack(Material.getMaterial(id));
-	}
-	/**
-	 * Gets an ItemStack from a numerical ID and a data value
-	 * @param id the numerical ID of the item
-	 * @param data the data value of the item
-	 * @return the ItemStack
-	 */
-	@SuppressWarnings("deprecation")
-	public static ItemStack getItemStackFromNumericalID(int id, int data) {
-		return new ItemStack(Material.getMaterial(id), 1, (short) 0, (byte) data);
 	}
 	/**
 	 * Gets an ItemStack matching a formatted name.
@@ -153,103 +115,7 @@ public class Utils {
 	 * @return the name of te ItemStack
 	 */
 	public static String getUserItemName(ItemStack it) {
-		Material a;
-		try {
-			a = it.getType();
-		} catch (NullPointerException e) {
-			a = Material.STONE;
-		}		
-		String aN = a.toString().toLowerCase().replace('_', ' ');
-		String aN1 = StringUtils.capitalize(aN);
-		@SuppressWarnings("deprecation")
-		int b = it.getData().getData();
-		if(a == Material.STONE) {
-			 switch (b) {
-			 case 0:
-				 return "Stone";
-			 case 1:
-				 return "Granite";
-			 case 2:
-				 return "Polished granite";
-			 case 3:
-				 return "Diorite";
-			 case 4:
-				 return "Polished diorite";
-			 case 5:
-				 return "Andesite";
-			 case 6:
-				 return "Polished andesite";
-			 }
-		} else if(a == Material.STAINED_CLAY) {
-			 switch (b) {
-			 case 0:
-				 return "White clay";
-			 case 1:
-				 return "Orange clay";
-			 case 2:
-				 return "Magenta clay";
-			 case 3:
-				 return "Light blue clay";
-			 case 4:
-				 return "Yellow clay";
-			 case 5:
-				 return "Lime clay";
-			 case 6:
-				 return "Pink clay";
-			 case 7:
-				 return "Gray clay";
-			 case 8:
-				 return "Light gay clay";
-			 case 9:
-				 return "Cyan clay";
-			 case 10:
-				 return "Purple clay";
-			 case 11:
-				 return "Blue clay";
-			 case 12:
-				 return "Brown clay";
-			 case 13:
-				 return "Green clay";
-			 case 14:
-				 return "Red clay";
-			 case 15:
-				 return "Black clay";	 
-			 }
-		} else if(a == Material.WOOD) {
-			switch (b) {
-			 case 0:
-				 return "Oak planks";
-			 case 1:
-				 return "Spruce planks";
-			 case 2:
-				 return "Birch planks";
-			 case 3:
-				 return "Jungle planks";
-			 case 4:
-				 return "Acacia planks";
-			 case 5:
-				 return "Dark oak planks";
-			}
-		} else if(a == Material.LOG) {
-			switch (b) {
-			 case 0:
-				 return "Oak log";
-			 case 1:
-				 return "Spruce log";
-			 case 2:
-				 return "Birch log";
-			 case 3:
-				 return "Jungle log";
-			 case 4:
-				 return "Acacia log";
-			 case 5:
-				 return "Dark oak log";
-			}
-		}
-		else {
-			return aN1;
-		}
-		return aN1;
+		return getUserItemName(it.getType());
 	}
 	/**
 	 * Get the user-friendly name of a material
@@ -259,93 +125,6 @@ public class Utils {
 	public static String getUserItemName(Material a) {
 		String aN = a.toString().toLowerCase().replace('_', ' ');
 		String aN1 = StringUtils.capitalize(aN);
-		int b = 0;
-		if(a == Material.STONE) {
-			 switch (b) {
-			 case 0:
-				 return "Stone";
-			 case 1:
-				 return "Granite";
-			 case 2:
-				 return "Polished granite";
-			 case 3:
-				 return "Diorite";
-			 case 4:
-				 return "Polished diorite";
-			 case 5:
-				 return "Andesite";
-			 case 6:
-				 return "Polished andesite";
-			 }
-		} else if(a == Material.STAINED_CLAY) {
-			 switch (b) {
-			 case 0:
-				 return "White clay";
-			 case 1:
-				 return "Orange clay";
-			 case 2:
-				 return "Magenta clay";
-			 case 3:
-				 return "Light blue clay";
-			 case 4:
-				 return "Yellow clay";
-			 case 5:
-				 return "Lime clay";
-			 case 6:
-				 return "Pink clay";
-			 case 7:
-				 return "Gray clay";
-			 case 8:
-				 return "Light gay clay";
-			 case 9:
-				 return "Cyan clay";
-			 case 10:
-				 return "Purple clay";
-			 case 11:
-				 return "Blue clay";
-			 case 12:
-				 return "Brown clay";
-			 case 13:
-				 return "Green clay";
-			 case 14:
-				 return "Red clay";
-			 case 15:
-				 return "Black clay";	 
-			 }
-		} else if(a == Material.WOOD) {
-			switch (b) {
-			 case 0:
-				 return "Oak planks";
-			 case 1:
-				 return "Spruce planks";
-			 case 2:
-				 return "Birch planks";
-			 case 3:
-				 return "Jungle planks";
-			 case 4:
-				 return "Acacia planks";
-			 case 5:
-				 return "Dark oak planks";
-			}
-		} else if(a == Material.LOG) {
-			switch (b) {
-			 case 0:
-				 return "Oak log";
-			 case 1:
-				 return "Spruce log";
-			 case 2:
-				 return "Birch log";
-			 case 3:
-				 return "Jungle log";
-			 case 4:
-				 return "Acacia log";
-			 case 5:
-				 return "Dark oak log";
-			}
-		}
-		else {
-			return aN1;
-		}
 		return aN1;
 	}
 	/**
@@ -410,7 +189,7 @@ public class Utils {
 	                boolean isBold = false;
 	 
 	                for(char c : message.toCharArray()){
-	                        if(c == '�'){
+	                        if(c == '�'){
 	                                previousCode = true;
 	                                continue;
 	                        }else if(previousCode == true){
@@ -474,37 +253,11 @@ public class Utils {
 		return max;
 	}
 	/**
-	 * Sends the TabList header and footer to a player
-	 * @param player The player to send the header/footer to
-	 * @param header The header
-	 * @param footer The footer
-	 */
-	public static void sendHeaderFooter(Player player, String header, String footer) {
-        IChatBaseComponent tabHeader = ChatSerializer.a("{\"text\": \"" + header + "\"}");
-        IChatBaseComponent tabFooter = ChatSerializer.a("{\"text\": \"" + footer + "\"}");
-        PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
-        try
-        {
-            Field headerField = packet.getClass().getDeclaredField("a");
-            headerField.setAccessible(true);
-            headerField.set(packet, tabHeader);
-            headerField.setAccessible(false);
-            Field footerField = packet.getClass().getDeclaredField("b");
-            footerField.setAccessible(true);
-            footerField.set(packet, tabFooter);
-            footerField.setAccessible(false);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-    }
-	/**
 	 * Sends an action bar message to a player (used to clean other classes)
 	 * @param player The player to send the message to
 	 * @param msg The message to send
 	 */
+	@SuppressWarnings("deprecation")
 	public static void sendActionBarMessage(Player player, String msg) {
 		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
 	}
@@ -516,6 +269,7 @@ public class Utils {
 	 * @return the generated ItemStack
 	 */
 	public static ItemStack createQuickItemStack(Material material, short damage, String name) {
+		@SuppressWarnings("deprecation")
 		ItemStack toReturn = new ItemStack(material, 1, damage);
 		ItemMeta meta = toReturn.getItemMeta();
 		meta.setDisplayName(name);
@@ -530,11 +284,12 @@ public class Utils {
 	}
 	
 	public static ItemStack createQuickItemStack(Material material, short damage, boolean enchanted, String name, String...lore) {
+		@SuppressWarnings("deprecation")
 		ItemStack toReturn = new ItemStack(material, 1, damage);
 		ItemMeta meta = toReturn.getItemMeta();
 		meta.setDisplayName(name);
 		if(enchanted) {
-			meta.addEnchant(Enchantment.DAMAGE_ARTHROPODS, 1, true);
+			meta.addEnchant(Enchantment.BANE_OF_ARTHROPODS, 1, true);
 			meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		}
 		List<String> loreList = new ArrayList<>();
@@ -628,63 +383,7 @@ public class Utils {
 	public static boolean locationComparator(Location a, Location b) {
 		return (a.getBlockX() == b.getBlockX() && a.getBlockZ() == b.getBlockZ() && (a.getBlockY() - b.getBlockY()) < 4);
 	}
-	public static int spawnBlock(Player player, Location loc, int blockID, int data){
-		WrapperPlayServerSpawnEntity fbs = new WrapperPlayServerSpawnEntity();
-			int entityID = new Random().nextInt();
-	        fbs.setEntityID(entityID);
-	        fbs.setObjectData(blockID | (data << 0x10));	
-	        Location l = player.getLocation();
-	        fbs.setX(l.getX());
-	        fbs.setY(l.getY());
-	        fbs.setZ(l.getZ());
-	        fbs.setOptionalSpeedX(0);
-	        fbs.setOptionalSpeedY(0);
-	        fbs.setOptionalSpeedY(0);
-			((CraftPlayer) player).getHandle().playerConnection.sendPacket((PacketPlayOutSpawnEntity) fbs.getHandle().getHandle());
-			return entityID;
-	}
 	
-	public static void sendBlockChange(Player player, Material block, Location location) {
-		WrapperPlayServerBlockChange fbs = new WrapperPlayServerBlockChange();
-		fbs.setLocation(new com.comphenix.protocol.wrappers.BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
-		fbs.setBlockData(WrappedBlockData.createData(block));
-		((CraftPlayer) player).getHandle().playerConnection.sendPacket((PacketPlayOutBlockChange) fbs.getHandle().getHandle());
-	}
-	
-	public static void sendEntityDestroy(Player player, int entityID) {
-		WrapperPlayServerEntityDestroy fbs = new WrapperPlayServerEntityDestroy();
-		int[] entityIDs = {entityID};
-		fbs.setEntityIds(entityIDs);
-		((CraftPlayer) player).getHandle().playerConnection.sendPacket((PacketPlayOutEntityDestroy) fbs.getHandle().getHandle());
-	}
-	
-	public static EntityFallingBlock spawnFakeBlockEntity(Player player, Location location, Material material, byte data) {
-		@SuppressWarnings("deprecation")
-		EntityFallingBlock f = ((CraftFallingBlock) player.getWorld().spawnFallingBlock(location.add(0.0, 0.01, 0.0), material, data)).getHandle();
-		f.setNoGravity(true);
-		f.setInvulnerable(true);
-		PacketPlayOutEntityDestroy ed = new PacketPlayOutEntityDestroy(f.getId());
-		for(Player P : Bukkit.getOnlinePlayers()) if(P != player) ((CraftPlayer) P).getHandle().playerConnection.sendPacket(ed);
-		return f;
-	}
-	public static void testEntotyDestroyNMS(Player player,int entityID) {
-		PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(entityID);
-		try {
-			((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	public static void testBlockChangeNMS(Player player,Location loc, Material material) {
-		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) loc.getWorld()).getHandle(), new BlockPosition(loc.getX(), loc.getY(), loc.getZ()));
-		net.minecraft.server.v1_12_R1.Block nmsBlock = CraftMagicNumbers.getBlock(material);
-		packet.block = nmsBlock.getBlockData();
-		try {
-			((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	public static Location locationFlattenner(Location loc) {
 		return new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), loc.getYaw(), loc.getPitch());
 	}
@@ -705,24 +404,7 @@ public class Utils {
 
 	    return MM + ":" + SS;
 	} 
-	public static int spawnBlockTestFGDSHGDFSQGFD(Player player, Location loc, int blockID, int data){
-		@SuppressWarnings("deprecation")
-		FallingBlock block = loc.getWorld().spawnFallingBlock(loc, blockID, (byte) data);
-		block.setGravity(false);
-		WrapperPlayServerSpawnEntity fbs = new WrapperPlayServerSpawnEntity(block, 27, blockID | (data << 0x10));
-		block.remove();
-			int entityID = fbs.getEntityID();
-	        fbs.setEntityID(entityID);
-	        fbs.setObjectData(blockID | (data << 0x10));
-	        Location l = player.getLocation();
-	        fbs.setX(l.getX());
-	        fbs.setY(l.getY());
-	        fbs.setZ(l.getZ());
-	        System.out.println("ProtocolLib packet done");
-			((CraftPlayer) player).getHandle().playerConnection.sendPacket((PacketPlayOutSpawnEntity) fbs.getHandle().getHandle());
-			System.out.println("send packet");
-			return entityID;
-	}
+	
 	public static Location substractLocation(Location a, Location b) {
 		if(!a.getWorld().equals(b.getWorld())) throw new IllegalArgumentException("The two locations are not in the same world!");
 		double x = a.getX() - b.getX();
@@ -730,28 +412,7 @@ public class Utils {
 		double z = a.getZ() - b.getZ();
 		return new Location(a.getWorld(), x, y, z);
 	}
-	public static void sendRedVignette(Player player) {
-		CraftPlayer cp = (CraftPlayer) player;
-		WrapperPlayServerWorldBorder p = new WrapperPlayServerWorldBorder();
-		p.setAction(WorldBorderAction.SET_SIZE);
-		p.setRadius(0);
-		p.setWarningDistance(0);
-		p.setSpeed(1);
-		p.setCenterX(player.getLocation().getX());
-		p.setCenterZ(player.getLocation().getZ());
-		cp.getHandle().playerConnection.sendPacket((PacketPlayOutWorldBorder) p.getHandle().getHandle());
-	}
-	public static void normalVignette(Player player) {
-		CraftPlayer cp = (CraftPlayer) player;
-		WrapperPlayServerWorldBorder p = new WrapperPlayServerWorldBorder();
-		p.setAction(WorldBorderAction.SET_SIZE);
-		p.setRadius(2^15);
-		p.setWarningDistance(0);
-		p.setSpeed(1);
-		p.setCenterX(0);
-		p.setCenterZ(0);
-		cp.getHandle().playerConnection.sendPacket((PacketPlayOutWorldBorder) p.getHandle().getHandle());
-	}
+	
 	public static boolean doubleContains(List<Entity> list, ArrayList<Player> seekers) {
 		for(Player P : seekers) {
 			if(list.contains(P)) return true;
@@ -894,12 +555,14 @@ public class Utils {
 		  }
 	  }
 	  
-	  @SuppressWarnings("deprecation")
-	public static void transformToFallingBlock(Block b) {
-		  	Material type = b.getType();
-		  	byte data = b.getData();
-		  	b.setType(Material.AIR);
-			b.getWorld().spawnFallingBlock(b.getLocation().clone().add(0.5, 0, 0.5), type, data);
+	  public static void transformToFallingBlock(Block b) {
+		  	BlockData data = b.getBlockData();
+		    Location loc = b.getLocation().add(0.5, 0.01, 0.5);
+
+		    b.setType(Material.AIR); // d’abord supprimer le bloc
+		    FallingBlock fb = b.getWorld().spawnFallingBlock(loc, data);
+
+		    fb.setDropItem(false); // évite que le bloc drop quand il touche le sol
 		}
 	  
 	  public static String locationToString(Location loc) {

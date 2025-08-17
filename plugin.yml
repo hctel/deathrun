@@ -2,6 +2,7 @@ name: DeathRun
 author: hctel
 version: 00.0Beta
 main: be.hctel.renaissance.deathrun.DeathRun
+api-version: 1.21.8
 commands:
   testtrap:
     usage: /traptest <startPos x-y-z> <endPos x-y-z> <modelStartPos x-y-z> <width> <steps> <delay> <type>

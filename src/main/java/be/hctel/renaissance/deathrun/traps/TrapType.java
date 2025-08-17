@@ -16,13 +16,14 @@ public enum TrapType {
 	PARKOUR_DISAPPEAR(new TrapMethod() {
 
 		@Override
-		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
 			Location workLocation = point.clone();
 			for(int i = 0; i < width; i++) {
 				Location workLocationDeep = workLocation.clone();
 				for(int h = Math.min(height, 0); h < Math.max(0, height); h++) {
 					Block b = workLocationDeep.getBlock();
-					if(b.getType() == Material.STAINED_CLAY && b.getData() == (byte) 14) b.setType(Material.AIR);
+					trap.getBlockStateList().add(b.getState());
+					if(b.getType() == Material.RED_TERRACOTTA) b.setType(Material.AIR);
 					workLocationDeep.add(0,Integer.signum(height),0);
 				}
 				workLocation.add(crossVector);
@@ -32,10 +33,11 @@ public enum TrapType {
 	}, false, true, TrapOrientation.TRID),
 	LANTERN_DISAPPEAR(new TrapMethod() {
 		@Override
-		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {	
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {	
 			Location workLocation = point.clone();
 			for(int i = 0; i < width; i++) {
 				Block b = workLocation.getBlock();
+				trap.getBlockStateList().add(b.getState());
 				if(b.getType() == Material.SEA_LANTERN) b.setType(workLocation.clone().add(0, -1, 0).getBlock().getType());
 				workLocation.add(crossVector);
 			}
@@ -45,10 +47,12 @@ public enum TrapType {
 	LADDER_DISPAWN(new TrapMethod() {
 
 		@Override
-		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
 			Location workLocation = point.clone();
 			for(int i = 0; i < width; i++) {
-				workLocation.getBlock().setType(Material.AIR);
+				Block b = workLocation.getBlock();
+				trap.getBlockStateList().add(b.getState());
+				b.setType(Material.AIR);
 				workLocation.add(crossVector);
 			}
 		}
@@ -58,7 +62,7 @@ public enum TrapType {
 	FIRE_TRAIL(new TrapMethod() {
 
 		@Override
-		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
 			Location workLocation = point.clone().add(0.5, 0.5, 0);
 			for(int i = 0; i < width; i++) {
 				workLocation.getWorld().spawnParticle(Particle.FLAME, workLocation, 1, 0, 0, 0, 0);
@@ -76,10 +80,11 @@ public enum TrapType {
 	
 	GLASS_FLOOR(new TrapMethod() {
 		@Override
-		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector) {	
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {	
 			Location workLocation = point.clone();
-			point.getWorld().playSound(point, Sound.BLOCK_NOTE_PLING, 5f, (float) (0.5+(((float)stepnr)/20f)));
+			point.getWorld().playSound(point, Sound.BLOCK_NOTE_BLOCK_PLING, 5f, (float) (0.5+(((float)stepnr)/20f)));
 			for(int i = 0; i < width; i++) {
+				trap.getBlockStateList().add(workLocation.getBlock().getState());
 				Utils.transformToFallingBlock(workLocation.getBlock());
 				workLocation.add(crossVector);
 			}
