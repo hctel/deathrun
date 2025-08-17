@@ -556,14 +556,13 @@ public class Utils {
 	  }
 	  
 	  public static void transformToFallingBlock(Block b) {
-		    BlockData data = b.getBlockData();
-		    Location loc = b.getLocation().add(0.5, 0, 0.5);
+		  	BlockData data = b.getBlockData();
+		    Location loc = b.getLocation().add(0.5, 0.01, 0.5);
 
 		    b.setType(Material.AIR); // d’abord supprimer le bloc
 		    FallingBlock fb = b.getWorld().spawnFallingBlock(loc, data);
 
 		    fb.setDropItem(false); // évite que le bloc drop quand il touche le sol
-		    Bukkit.getLogger().info("Spawned FallingBlock: " + fb.getUniqueId() + " of " + data.getMaterial());
 		}
 	  
 	  public static String locationToString(Location loc) {
