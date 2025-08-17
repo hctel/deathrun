@@ -1,25 +1,25 @@
 package be.hctel.renaissance.deathrun.traps;
 
+import java.util.ArrayList;
+
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import be.hctel.api.Utils;
-
 public class Trap {
+	private Trap thisTrap;
+	
 	private Plugin plugin;
 	
 	private TrapType type;
 	
 	private Location startLocation;
 	private Location stopLocation;
-	private Location modelStartLocation;
-	
 	private long trapReset;
+	@SuppressWarnings("unused")
 	private long trapCooldown;
 	
 	private Vector trapArea;
@@ -33,7 +33,6 @@ public class Trap {
 	private long delay;
 	private TrapMethod method;
 	
-	private int xSize;
 	private int ySize;
 	
 	private int width;
@@ -47,6 +46,8 @@ public class Trap {
 	private BukkitRunnable trapTask;
 	private BukkitRunnable resetTask;
 	
+	private ArrayList<BlockState> changedBlocks = new ArrayList<BlockState>();
+	
 	/**
 	 * Creates an horizontal non-resetting trap
 	 * @param plugin this plugin ({@link org.bukkit.plugin.Plugin})
@@ -58,7 +59,7 @@ public class Trap {
 	 * @param type the {@link TrapRype}
 	 * @param trapReset the trap reset delay (delay before the trap resets)
 	 * @param trapCooldown the trap cooldown delay (delay before the trap can be used again)
-	 */
+	 *//*
 	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int width, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		this.plugin = plugin;
 		this.type = type;
@@ -71,7 +72,7 @@ public class Trap {
 		this.trapCooldown = trapCooldown;
 		
 		
-		this.xSize = stopLocation.clone().subtract(startLocation).getBlockX();
+		stopLocation.clone().subtract(startLocation).getBlockX();
 		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
 		this.width = width;
 		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
@@ -85,7 +86,8 @@ public class Trap {
 		this.workLocation = startLocation.clone();
 		
 		setupTasks();
-	}
+		this.thisTrap = this;
+	}*/
 	
 	/**
 	 * Creates a vertical resetting trap
@@ -100,21 +102,20 @@ public class Trap {
 	 * 
 	 * @throws {@link IllegalArgumentException} if the {@link TrapType}'s getOrientation() method returns a vertical trap type. <b>OR</b> if the trap's dimmensions arent' vertical
 	 */
-	public Trap(Plugin plugin, Location startLocation, Location stopLocation, Location modelLocation, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
+	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		if(type.getOrientation() != TrapOrientation.VERTICAL) throw new IllegalArgumentException("TrapType is not a vertical trap");
 		//if(Math.abs(stopLocation.getBlockX() - startLocation.getBlockX())+Math.abs(stopLocation.getBlockZ() - startLocation.getBlockZ()) != Math.sqrt(Math.abs(stopLocation.getBlockX() - startLocation.getBlockX())^2+Math.abs(stopLocation.getBlockZ() - startLocation.getBlockZ()^2))) throw new IllegalArgumentException("Trap is not a vertical trap");
 		this.plugin = plugin;
 		this.type = type;
 		this.startLocation = startLocation;
 		this.stopLocation = stopLocation;
-		this.modelStartLocation = modelLocation;
 		this.steps = steps;
 		this.delay = delay;
 		this.method = this.type.getMethod();
 		this.trapReset = trapReset;
 		this.trapCooldown = trapCooldown;
 		
-		this.xSize = stopLocation.clone().subtract(startLocation).getBlockX();
+		stopLocation.clone().subtract(startLocation).getBlockX();
 		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
 		this.width = Math.abs(ySize)+1;
 		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
@@ -128,14 +129,14 @@ public class Trap {
 		this.workLocation = startLocation.clone();
 		
 		setupTasks();
+		this.thisTrap = this;
 	}
 	
-	public Trap(Plugin plugin, Location startLocation, Location stopLocation, Location modelLocation, int width, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
+	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int width, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		this.plugin = plugin;
 		this.type = type;
 		this.startLocation = startLocation;
 		this.stopLocation = stopLocation;
-		this.modelStartLocation = modelLocation;
 		this.steps = steps;
 		this.delay = delay;
 		this.method = this.type.getMethod();
@@ -143,7 +144,7 @@ public class Trap {
 		this.trapCooldown = trapCooldown;
 		
 		
-		this.xSize = stopLocation.clone().subtract(startLocation).getBlockX();
+		stopLocation.clone().subtract(startLocation).getBlockX();
 		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
 		this.width = (type.getOrientation() == TrapOrientation.VERTICAL ? Math.abs(ySize)+1 : width);
 		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
@@ -162,15 +163,14 @@ public class Trap {
 		this.workLocation = startLocation.clone();
 		this.width = Math.abs(this.width);
 		setupTasks();
-		
+		this.thisTrap = this;
 	}
 	
-	public Trap(Plugin plugin, Location startLocation, Location stopLocation, Location modelLocation, int width, int height, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
+	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int width, int height, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		this.plugin = plugin;
 		this.type = type;
 		this.startLocation = startLocation;
 		this.stopLocation = stopLocation;
-		this.modelStartLocation = modelLocation;
 		this.steps = steps;
 		this.delay = delay;
 		this.method = this.type.getMethod();
@@ -180,7 +180,7 @@ public class Trap {
 		
 		this.height = (startLocation.getBlockY() < stopLocation.getBlockY() ? this.height : -this.height);		
 		
-		this.xSize = stopLocation.clone().subtract(startLocation).getBlockX();
+		stopLocation.clone().subtract(startLocation).getBlockX();
 		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
 		this.width = (type.getOrientation() == TrapOrientation.VERTICAL ? Math.abs(ySize)+1 : width);
 		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
@@ -199,13 +199,17 @@ public class Trap {
 		this.workLocation = startLocation.clone();
 		this.width = Math.abs(this.width);
 		setupTasks();
-		
+		this.thisTrap = this;
 	}
 	
 	public void startTrap() {
 		if(delay == 0) trapTask.runTask(plugin);
 		else trapTask.runTaskTimer(plugin, 0L, delay);
 		if(type.doesReset()) resetTask.runTaskLater(plugin, delay*(steps+2)+trapReset);
+	}
+	
+	public ArrayList<BlockState> getBlockStateList() {
+		return this.changedBlocks;
 	}
 	
 	@Override
@@ -216,34 +220,10 @@ public class Trap {
 	private void setupTasks() {
 		if(type.doesReset()) {
 			resetTask = new BukkitRunnable() {
-				@SuppressWarnings("deprecation")
 				@Override
 				public void run() {
-					Location workLoc = startLocation.clone();
-					Location modelWorkLoc = modelStartLocation.clone();
-					for(int i = 0; i < Math.abs(length)+1; i++) {
-						Location workLocDeep = workLoc.clone();
-						Location modelWorkLocDeep = modelWorkLoc.clone();
-						for(int j = 0; j < Math.abs(width); j++) {
-							Location workLocDeepDeep = workLocDeep.clone();
-							Location modelWorkLocDeepDeep = modelWorkLocDeep.clone();
-							for(int h = Math.min(height, 0); h < Math.max(0, height); h++) {
-								Material modelMat = modelWorkLocDeepDeep.getBlock().getType();
-								if(modelMat != Material.AIR) {
-									byte modelData = modelWorkLocDeepDeep.getBlock().getData();
-									Block targetBlock = workLocDeepDeep.getBlock();
-									targetBlock.setType(modelMat);
-									targetBlock.setData(modelData);
-								}
-								//System.out.println(height + " blocks high");
-								workLocDeepDeep.add(0,Integer.signum(height),0);
-								modelWorkLocDeepDeep.add(0,Integer.signum(height),0);
-							}
-							workLocDeep.add(crossVector);
-							modelWorkLocDeep.add(crossVector);
-						}
-						workLoc.add(travelDirection);
-						modelWorkLoc.add(travelDirection);
+					for(BlockState B : changedBlocks) {
+						B.update(true);
 					}
 				}			
 			};
@@ -255,7 +235,7 @@ public class Trap {
 				public void run() {
 					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
 					for(int i = 0; i < steps; i++) {
-						method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector);
+						method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector, thisTrap);
 						workLocation.add(travelStep);
 						stepnr++;
 					}
@@ -268,7 +248,7 @@ public class Trap {
 				@Override
 				public void run() {
 					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
-					method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector);
+					method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector, thisTrap);
 					workLocation.add(travelStep);
 					stepnr++;
 					if(stepnr == steps) cancel();

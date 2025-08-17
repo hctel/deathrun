@@ -13,6 +13,7 @@ import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 
 
 public class PlayerListener implements Listener {
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
 		switch(e.getTo().clone().add(0,-1,0).getBlock().getType()) {	
@@ -26,7 +27,7 @@ public class PlayerListener implements Listener {
 							Sign sign = (Sign) block.getState();
 							int strenght = Integer.parseInt(sign.getLine(0));
 							int duration = Integer.parseInt(sign.getLine(1));
-							e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP, duration*20, strenght, false, false));
+							e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, duration*20, strenght, false, false));
 						}
 					}
 				}
@@ -52,16 +53,6 @@ public class PlayerListener implements Listener {
 		}
 		default: break;
 		}
-		switch(e.getTo().getBlock().getType()) {
-			case WATER: {
-				MainGameEngine.killPlayer(e.getPlayer());
-				break;
-			}				
-			case STATIONARY_WATER: {
-				MainGameEngine.killPlayer(e.getPlayer());
-				break;
-			}
-			default:break;		
-		}
+		if(e.getPlayer().isInWater()) MainGameEngine.killPlayer(e.getPlayer());
 	}
 }

@@ -8,8 +8,8 @@ public class MainGameEngine {
 
 	public static void killPlayer(Player player) {
 		if(player.getGameMode() == GameMode.CREATIVE) return;
-		player.teleport(player.getBedSpawnLocation());
-		player.playSound(player.getLocation(), Sound.ENTITY_IRONGOLEM_HURT, 10f, 1f);
+		player.teleport(player.getRespawnLocation());
+		player.playSound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_HURT, 10f, 1f);
 		player.sendTitle("§4§l✖", "You died!", 0, 50, 20);
 	}
 	

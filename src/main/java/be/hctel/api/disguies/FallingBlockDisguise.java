@@ -9,11 +9,8 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftFallingBlock;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
-import com.comphenix.packetwrapper.WrapperPlayServerNamedEntitySpawn;
-import com.comphenix.packetwrapper.WrapperPlayServerUpdateAttributes;
+import com.comphenix.packetwrapper.wrappers.play.clientbound.WrapperPlayServerUpdateAttributes;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -69,7 +66,7 @@ public class FallingBlockDisguise {
 				if((e.getPlayer() != p | !excludeList.contains(e.getPlayer())) && !isCancelled) {
 					WrapperPlayServerUpdateAttributes pk = new WrapperPlayServerUpdateAttributes(e.getPacket());
 					//plugin.getLogger().info("Details: " + pk.getEntityID() + " - " + p.getEntityId() + "");
-						if(pk.getEntityID() == p.getEntityId()) {
+						if(pk.getEntityId() == p.getEntityId()) {
 							e.setCancelled(true);
 							//plugin.getLogger().info("	Cancelled Update Attributes packet");
 						}

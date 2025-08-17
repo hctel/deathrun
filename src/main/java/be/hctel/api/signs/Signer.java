@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -53,7 +53,7 @@ public class Signer implements Listener {
 	public void addEditor(Player player, String operation) {
 		loadSigns();
 		editors.put(player, operation);
-		player.sendMessage("§aEntered Signer editor mode");
+		player.sendMessage("ï¿½aEntered Signer editor mode");
 	}
 	
 	/**
@@ -68,11 +68,12 @@ public class Signer implements Listener {
 	 * Listener listening for a {@link PlayerInteractEvent}
 	 * @param e The PlayerInteractEvent
 	 */
+	@SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void listenersEvent(PlayerInteractEvent e) {
 		loadSigns();
 		if(e.getClickedBlock() == null) return;
-		if(e.getClickedBlock().getType() == Material.SIGN || e.getClickedBlock().getType() == Material.SIGN_POST || e.getClickedBlock().getType() == Material.WALL_SIGN) {
+		if(e.getClickedBlock().getState() instanceof Sign) {
 			Player p = e.getPlayer();
 			if(signs.containsKey(e.getClickedBlock())) {
 				SignData clickedData = signs.get(e.getClickedBlock());
@@ -104,19 +105,19 @@ public class Signer implements Listener {
 	@EventHandler
 	@SuppressWarnings("deprecation")
 	public void listenersEvent(BlockBreakEvent e) {
-		if(e.getBlock().getType() == Material.SIGN || e.getBlock().getType() == Material.SIGN_POST || e.getBlock().getType() == Material.WALL_SIGN) {
+		if(e.getBlock().getState() instanceof Sign) {
 		if(editors.containsKey(e.getPlayer()) && e.getPlayer().isOp()) {
 			if(editors.get(e.getPlayer()).equalsIgnoreCase("remove ")) {
 				signs.remove(e.getBlock());
 				config.remove(e.getBlock().getLocation().getWorld().getName() + "," + e.getBlock().getLocation().getBlockX() + "," + e.getBlock().getLocation().getBlockY() + "," + e.getBlock().getLocation().getBlockZ());
-				e.getPlayer().sendMessage("§aRemoved this sign from Signer.");
+				e.getPlayer().sendMessage("ï¿½aRemoved this sign from Signer.");
 				editors.remove(e.getPlayer());
 			} else {
 				if(!(editors.get(e.getPlayer()).equalsIgnoreCase("remove "))) {
 					String[] editData = editors.get(e.getPlayer()).split(",");
 					SignType type = SignType.getfromName(editData[0]);
 					if(type == null) {
-						e.getPlayer().sendMessage("§cPlease enter a correct sign type!");
+						e.getPlayer().sendMessage("ï¿½cPlease enter a correct sign type!");
 						e.setCancelled(true);
 						return;
 					}
@@ -126,14 +127,14 @@ public class Signer implements Listener {
 					signJson.put("type", type.getName());
 					signJson.put("data", data.getData());
 					config.put(data.getLocation().getWorld().getName() + "," + data.getLocation().getBlockX() + "," + data.getLocation().getBlockY() + "," + data.getLocation().getBlockZ(), signJson);
-					e.getPlayer().sendMessage("§aAdded the sign to Signer.");
+					e.getPlayer().sendMessage("ï¿½aAdded the sign to Signer.");
 					editors.remove(e.getPlayer());
 				}
 				}
 			e.setCancelled(true);
 		}
 		} else {
-			if(e.getBlock().getType() == Material.SIGN || e.getBlock().getType() == Material.SIGN_POST || e.getBlock().getType() == Material.WALL_SIGN) {
+			if(e.getBlock().getState() instanceof Sign) {
 				Player p = e.getPlayer();
 				if(signs.containsKey(e.getBlock())) {
 					SignData clickedData = signs.get(e.getBlock());
@@ -179,7 +180,7 @@ public class Signer implements Listener {
 			for(String key : config.keySet()) {
 				String[] signPos = key.split(",");
 				SignData data = new SignData(SignType.getfromName(config.getJSONObject(key).getString("type")), config.getJSONObject(key).getString("data"), signPos);
-				if(data.getLocation().getBlock().getType() != Material.SIGN && data.getLocation().getBlock().getType() != Material.SIGN_POST && data.getLocation().getBlock().getType() != Material.WALL_SIGN) {
+				if(!(data.getLocation().getBlock().getState() instanceof Sign)) {
 					plugin.getLogger().warning("Wrong block type detected for sign at " + signPos[1] + "," + signPos[2] + "," + signPos[3] + " in world " + signPos[0]);
 					plugin.getLogger().warning("Detected type: " + data.getLocation().getBlock().getType());
 					continue;

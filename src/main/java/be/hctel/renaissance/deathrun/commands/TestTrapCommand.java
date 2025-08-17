@@ -2,7 +2,6 @@ package be.hctel.renaissance.deathrun.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.CommandBlock;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -38,7 +37,7 @@ public class TestTrapCommand implements CommandExecutor {
 				long delay = Long.parseLong(args[11]);
 				TrapType type = TrapType.valueOf(args[12]);
 				int height = Integer.parseInt(args[13]);
-				Trap testTrap = new Trap(plugin, startLocation, stopLocation, modelStartLocation, width, height, steps, delay, type, 2*20L, 60*20L);
+				Trap testTrap = new Trap(plugin, startLocation, stopLocation, width, height, steps, delay, type, 2*20L, 60*20L);
 				testTrap.startTrap();
 				player.sendRawMessage(testTrap.toString());
 				return true;
@@ -61,7 +60,7 @@ public class TestTrapCommand implements CommandExecutor {
 				int steps = Integer.parseInt(args[10]);
 				long delay = Long.parseLong(args[11]);
 				TrapType type = TrapType.valueOf(args[12]);
-				Trap testTrap = new Trap(plugin, startLocation, stopLocation, modelStartLocation, width, steps, delay, type, 2*20L, 60*20L);
+				Trap testTrap = new Trap(plugin, startLocation, stopLocation, width, steps, delay, type, 2*20L, 60*20L);
 				testTrap.startTrap();
 				player.sendRawMessage(testTrap.toString());
 				return true;
@@ -100,7 +99,7 @@ public class TestTrapCommand implements CommandExecutor {
 				int steps = Integer.parseInt(args[9]);
 				long delay = Long.parseLong(args[10]);
 				TrapType type = TrapType.valueOf(args[11]);
-				Trap testTrap = new Trap(plugin, startLocation, stopLocation, modelStartLocation, steps, delay, type, 2*20L, 60*20L);
+				Trap testTrap = new Trap(plugin, startLocation, stopLocation, steps, delay, type, 2*20L, 60*20L);
 				player.sendRawMessage(testTrap.toString());
 				testTrap.startTrap();
 				return true;
@@ -124,7 +123,7 @@ public class TestTrapCommand implements CommandExecutor {
 				int steps = Integer.parseInt(args[10]);
 				long delay = Long.parseLong(args[11]);
 				TrapType type = TrapType.valueOf(args[12]);
-				Trap testTrap = new Trap(plugin, startLocation, stopLocation, modelStartLocation, width, steps, delay, type, 2*20L, 60*20L);
+				Trap testTrap = new Trap(plugin, startLocation, stopLocation, width, steps, delay, type, 2*20L, 60*20L);
 				testTrap.startTrap();
 				return true;
 			} else if(args.length == 10) {
@@ -161,7 +160,7 @@ public class TestTrapCommand implements CommandExecutor {
 				int steps = Integer.parseInt(args[9]);
 				long delay = Long.parseLong(args[10]);
 				TrapType type = TrapType.valueOf(args[11]);
-				Trap testTrap = new Trap(plugin, startLocation, stopLocation, modelStartLocation, steps, delay, type, 2*20L, 60*20L);
+				Trap testTrap = new Trap(plugin, startLocation, stopLocation, steps, delay, type, 2*20L, 60*20L);
 				testTrap.startTrap();
 				return true;
 			}

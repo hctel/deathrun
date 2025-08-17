@@ -14,6 +14,7 @@ import net.minecraft.server.v1_12_R1.PacketDataSerializer;
 import net.minecraft.server.v1_12_R1.PacketPlayInUseItem;
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload;
 
+@SuppressWarnings("unused")
 public class FakeBook {
 	private ItemStack book;
 	private BookMeta meta;
@@ -51,7 +52,6 @@ public class FakeBook {
 	public void open(Player player) {
 		ItemStack itemHeld = player.getInventory().getItemInMainHand();
 		player.getInventory().setItemInMainHand(book);
-		PacketPlayInUseItem packet = new PacketPlayInUseItem();
 		openBookInHand(player);
 		player.getInventory().setItemInMainHand(itemHeld);
 	}

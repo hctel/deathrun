@@ -15,6 +15,6 @@ public class BlockListeners implements Listener {
 	
 	@EventHandler
 	public void onItemSpawn(EntitySpawnEvent e) {
-		if(e.getEntityType() == EntityType.DROPPED_ITEM) e.setCancelled(true); 
+		if(e.getEntityType() == EntityType.ITEM) e.setCancelled(true); 
 	}
 }
