@@ -212,9 +212,25 @@ public class Trap {
 		return this.changedBlocks;
 	}
 	
+	public Location getCenter() {
+		return new Location(startLocation.getWorld(), (stopLocation.getBlockX()+startLocation.getBlockX())/2, (stopLocation.getBlockY()+startLocation.getBlockY())/2, (stopLocation.getBlockZ()+startLocation.getBlockZ())/2);
+	}
+	
+	public Vector getArea() {
+		return this.trapArea;
+	}
+	
+	public int getLength() {
+		return this.length;
+	}
+	
+	public Plugin getPlugin() {
+		return this.plugin;
+	}
+	
 	@Override
 	public String toString() {
-		return String.format("Trap origin: %d, %d, %d\nTrap end: %d, %d, %d\nTrap area: (%d, %d)\nTrap width: %d\nTrap length: %d\nDirection of travel: (%d, %d, %d)\nTravel step: (%f, %f, %f)\nCross Vector: (%d, %d, %d)\nTrap type: %s", startLocation.getBlockX(), startLocation.getBlockY(), startLocation.getBlockZ(), stopLocation.getBlockX(), stopLocation.getBlockY(), stopLocation.getBlockZ(), trapArea.getBlockX(), trapArea.getBlockZ(), width, length, travelDirection.getBlockX(), travelDirection.getBlockY(), travelDirection.getBlockZ(), travelStep.getX(), travelStep.getY(), travelStep.getZ(), crossVector.getBlockX(), crossVector.getBlockY(), crossVector.getBlockZ(), type.toString());
+		return String.format("Trap origin: %d, %d, %d\nTrap end: %d, %d, %d\nTrap area: (%d, %d)\nTrap width: %d\nTrap length: %d\nDirection of travel: (%d, %d, %d)\nTravel step: (%f, %f, %f)\nCross Vector: (%d, %d, %d)\nTrap type: %s\n", startLocation.getBlockX(), startLocation.getBlockY(), startLocation.getBlockZ(), stopLocation.getBlockX(), stopLocation.getBlockY(), stopLocation.getBlockZ(), trapArea.getBlockX(), trapArea.getBlockZ(), width, length, travelDirection.getBlockX(), travelDirection.getBlockY(), travelDirection.getBlockZ(), travelStep.getX(), travelStep.getY(), travelStep.getZ(), crossVector.getBlockX(), crossVector.getBlockY(), crossVector.getBlockZ(), type.toString());
 	}
 	
 	private void setupTasks() {
