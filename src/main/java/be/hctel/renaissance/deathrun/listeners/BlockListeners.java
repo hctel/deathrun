@@ -16,7 +16,6 @@ public class BlockListeners implements Listener {
 		}
 
 	}
-		
 	
 	@EventHandler
 	public void onItemSpawn(EntitySpawnEvent e) {

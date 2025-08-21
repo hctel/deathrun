@@ -6,6 +6,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -54,5 +55,10 @@ public class PlayerListener implements Listener {
 		default: break;
 		}
 		if(e.getPlayer().isInWater()) MainGameEngine.killPlayer(e.getPlayer());
+	}
+	
+	@EventHandler
+	public void onPortal(PlayerPortalEvent e) {
+		e.setCancelled(true);
 	}
 }
