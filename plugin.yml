@@ -3,8 +3,18 @@ author: hctel
 version: 00.0Beta
 main: be.hctel.renaissance.deathrun.DeathRun
 api-version: 1.21.8
+depend: [Multiverse-Core]
+prefix: DeathRun-TEST-00.0Beta
+load: POSTWORLD
+libaries:
+  - org.json:json:20250517
+  - com.comphenix.packetwrapper:PacketWrapper:1.20-2.2.1
 commands:
   testtrap:
     usage: /traptest <startPos x-y-z> <endPos x-y-z> <modelStartPos x-y-z> <width> <steps> <delay> <type>
     permission: dr.admin
     description: tests a trap
+  gm:
+    usage: /gm <0-3>
+    permission: dr.admin
+    description: Changes your gamemode
