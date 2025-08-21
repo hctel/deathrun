@@ -6,20 +6,24 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import be.hctel.renaissance.deathrun.DeathRun;
 import be.hctel.renaissance.deathrun.traps.Trap;
 import be.hctel.renaissance.deathrun.traps.TrapType;
 
 public class TestTrapCommand implements CommandExecutor {
+	
+	DeathRun plugin;
+	
+	public TestTrapCommand(DeathRun plugin) {
+		this.plugin = plugin;
+	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(sender instanceof Player) {
 			Player player = (Player) sender;
 			if(args.length == 14) {
-				Plugin plugin = DeathRun.plugin;
 				int x1 = Integer.parseInt(args[0]);
 				int y1 = Integer.parseInt(args[1]);
 				int z1 = Integer.parseInt(args[2]);
@@ -28,10 +32,6 @@ public class TestTrapCommand implements CommandExecutor {
 				int y2 = Integer.parseInt(args[4]);
 				int z2 = Integer.parseInt(args[5]);
 				Location stopLocation = new Location(player.getWorld(), x2, y2, z2);
-				int x3 = Integer.parseInt(args[6]);
-				int y3 = Integer.parseInt(args[7]);
-				int z3 = Integer.parseInt(args[8]);
-				Location modelStartLocation = new Location(player.getWorld(), x3, y3, z3);
 				int width = Integer.parseInt(args[9]);
 				int steps = Integer.parseInt(args[10]);
 				long delay = Long.parseLong(args[11]);
@@ -43,7 +43,6 @@ public class TestTrapCommand implements CommandExecutor {
 				return true;
 			}
 			else if(args.length == 13) {
-				Plugin plugin = DeathRun.plugin;
 				int x1 = Integer.parseInt(args[0]);
 				int y1 = Integer.parseInt(args[1]);
 				int z1 = Integer.parseInt(args[2]);
@@ -52,10 +51,6 @@ public class TestTrapCommand implements CommandExecutor {
 				int y2 = Integer.parseInt(args[4]);
 				int z2 = Integer.parseInt(args[5]);
 				Location stopLocation = new Location(player.getWorld(), x2, y2, z2);
-				int x3 = Integer.parseInt(args[6]);
-				int y3 = Integer.parseInt(args[7]);
-				int z3 = Integer.parseInt(args[8]);
-				Location modelStartLocation = new Location(player.getWorld(), x3, y3, z3);
 				int width = Integer.parseInt(args[9]);
 				int steps = Integer.parseInt(args[10]);
 				long delay = Long.parseLong(args[11]);
@@ -65,7 +60,6 @@ public class TestTrapCommand implements CommandExecutor {
 				player.sendRawMessage(testTrap.toString());
 				return true;
 			} else if(args.length == 10) {
-				Plugin plugin = DeathRun.plugin;
 				int x1 = Integer.parseInt(args[0]);
 				int y1 = Integer.parseInt(args[1]);
 				int z1 = Integer.parseInt(args[2]);
@@ -83,7 +77,6 @@ public class TestTrapCommand implements CommandExecutor {
 				player.sendRawMessage(testTrap.toString());
 				return true;
 			} else if(args.length == 12) {
-				Plugin plugin = DeathRun.plugin;
 				int x1 = Integer.parseInt(args[0]);
 				int y1 = Integer.parseInt(args[1]);
 				int z1 = Integer.parseInt(args[2]);
@@ -92,10 +85,6 @@ public class TestTrapCommand implements CommandExecutor {
 				int y2 = Integer.parseInt(args[4]);
 				int z2 = Integer.parseInt(args[5]);
 				Location stopLocation = new Location(player.getWorld(), x2, y2, z2);
-				int x3 = Integer.parseInt(args[6]);
-				int y3 = Integer.parseInt(args[7]);
-				int z3 = Integer.parseInt(args[8]);
-				Location modelStartLocation = new Location(player.getWorld(), x3, y3, z3);
 				int steps = Integer.parseInt(args[9]);
 				long delay = Long.parseLong(args[10]);
 				TrapType type = TrapType.valueOf(args[11]);
@@ -106,7 +95,6 @@ public class TestTrapCommand implements CommandExecutor {
 			}
 		} else {
 			if(args.length == 13) {
-				Plugin plugin = DeathRun.plugin;
 				int x1 = Integer.parseInt(args[0]);
 				int y1 = Integer.parseInt(args[1]);
 				int z1 = Integer.parseInt(args[2]);
@@ -115,10 +103,6 @@ public class TestTrapCommand implements CommandExecutor {
 				int y2 = Integer.parseInt(args[4]);
 				int z2 = Integer.parseInt(args[5]);
 				Location stopLocation = new Location(Bukkit.getWorld("world"), x2, y2, z2);
-				int x3 = Integer.parseInt(args[6]);
-				int y3 = Integer.parseInt(args[7]);
-				int z3 = Integer.parseInt(args[8]);
-				Location modelStartLocation = new Location(Bukkit.getWorld("world"), x3, y3, z3);
 				int width = Integer.parseInt(args[9]);
 				int steps = Integer.parseInt(args[10]);
 				long delay = Long.parseLong(args[11]);
@@ -127,7 +111,6 @@ public class TestTrapCommand implements CommandExecutor {
 				testTrap.startTrap();
 				return true;
 			} else if(args.length == 10) {
-				Plugin plugin = DeathRun.plugin;
 				int x1 = Integer.parseInt(args[0]);
 				int y1 = Integer.parseInt(args[1]);
 				int z1 = Integer.parseInt(args[2]);
@@ -144,7 +127,6 @@ public class TestTrapCommand implements CommandExecutor {
 				testTrap.startTrap();
 				return true;
 			} else if(args.length == 12) {
-				Plugin plugin = DeathRun.plugin;
 				int x1 = Integer.parseInt(args[0]);
 				int y1 = Integer.parseInt(args[1]);
 				int z1 = Integer.parseInt(args[2]);
@@ -153,10 +135,6 @@ public class TestTrapCommand implements CommandExecutor {
 				int y2 = Integer.parseInt(args[4]);
 				int z2 = Integer.parseInt(args[5]);
 				Location stopLocation = new Location(Bukkit.getWorld("world"), x2, y2, z2);
-				int x3 = Integer.parseInt(args[6]);
-				int y3 = Integer.parseInt(args[7]);
-				int z3 = Integer.parseInt(args[8]);
-				Location modelStartLocation = new Location(Bukkit.getWorld("world"), x3, y3, z3);
 				int steps = Integer.parseInt(args[9]);
 				long delay = Long.parseLong(args[10]);
 				TrapType type = TrapType.valueOf(args[11]);

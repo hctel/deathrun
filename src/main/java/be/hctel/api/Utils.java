@@ -20,7 +20,6 @@ import java.util.Random;
 import java.util.concurrent.RecursiveTask;
 
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -568,5 +567,4 @@ public class Utils {
 	  public static String locationToString(Location loc) {
 		  return String.format("(%d, %d, %d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 	  }
- 
 }
