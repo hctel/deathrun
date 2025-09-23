@@ -1,5 +1,7 @@
 package be.hctel.renaissance.deathrun.traps;
 
+import java.util.List;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -18,6 +20,59 @@ import be.hctel.api.Utils;
 import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 
 public enum TrapType {
+	WALL_SPAWN(new TrapMethod() {
+
+		@Override
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
+			Location workLocation = point.clone();
+			for(int i = 0; i < width; i++) {
+				Block b = workLocation.getBlock();
+				trap.getBlockStateList().add(b.getState());
+				b.setType(Material.GOLD_BLOCK);
+				workLocation.add(crossVector);
+			}
+		}
+		
+	}, false, true, TrapOrientation.VERTICAL),
+	LAUNCH_PLAYERS(new TrapMethod() {
+
+		@Override
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
+			if(stepnr == 0) {
+				ArmorStand centerStand = (ArmorStand) trap.getCenter().getWorld().spawnEntity(trap.getCenter(), EntityType.ARMOR_STAND);
+				centerStand.setVisible(false);
+				centerStand.setBasePlate(false);
+				centerStand.setInvulnerable(true);
+				centerStand.setGravity(false);
+				List<Entity> nearbyEntities = centerStand.getNearbyEntities(trap.getArea().getX()/2, 5, trap.getArea().getZ()/2);
+				for(Entity E : nearbyEntities) {
+					if(E instanceof Player) {
+						E.setVelocity(E.getVelocity().setY(15));
+					}
+				}
+				centerStand.remove();
+			}
+		}
+		
+	}, true, false, TrapOrientation.HORIZONTAL, 1),
+	COBBLE_STAIRS(new TrapMethod() {
+
+		@Override
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
+			Location workLocation = point.clone();
+			for(int i = 0; i < width; i++) {
+				Location workLocationDeep = workLocation.clone();
+				for(int h = Math.min(height, 0); h < Math.max(0, height); h++) {
+					Block b = workLocationDeep.getBlock();
+					trap.getBlockStateList().add(b.getState());
+					if(b.getType() == Material.COBBLESTONE_STAIRS) b.setType(Material.AIR);
+					workLocationDeep.add(0,Integer.signum(height),0);
+				}
+				workLocation.add(crossVector);
+			}
+		}
+		
+	}, false, true, TrapOrientation.TRID),
 	TNT(new TrapMethod() {
 		@Override
 		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector,
@@ -25,7 +80,6 @@ public enum TrapType {
 			Location workLocation = trap.getCenter();
 			workLocation.getWorld().spawnParticle(Particle.EXPLOSION, workLocation.clone().add(0,1.5,0), 5, trap.getArea().getX()/5, 1, trap.getArea().getZ()/5);
 			workLocation.getWorld().playSound(workLocation, Sound.ENTITY_GENERIC_EXPLODE, 5f, 1f);
-			System.out.println(Utils.locationToString(workLocation));
 			for(Entity E : workLocation.getWorld().getNearbyEntities(workLocation, trap.getArea().getX()/2, 5, trap.getArea().getZ()/2)) {
 				if(E instanceof Player) {
 					Player player = (Player) E;
@@ -60,6 +114,7 @@ public enum TrapType {
 				if(b.getType() == Material.AIR) {
 					trap.getBlockStateList().add(b.getState());
 					b.setType(Material.WATER);
+					System.out.println(Utils.locationToString(workLocation));
 				}
 				workLocation.add(crossVector);
 			}
@@ -74,10 +129,14 @@ public enum TrapType {
 			armorStand.setInvulnerable(true);
 			armorStand.setVisible(false);
 			armorStand.setBasePlate(false);
+			System.out.println("TRAP STEP");
 			for(int i = 0; i < width; i++) {
 				Location workLocationDeep = workLocation.clone();
+				System.out.println(String.format("Substep %d", i));
+				System.out.println(String.format("int h = %d; h < %d", Math.min(height, 0), Math.max(0, height)));
 				for(int h = Math.min(height, 0); h < Math.max(0, height); h++) {
 					Block b = workLocationDeep.getBlock();
+					System.out.println(String.format("Current workLocationDeep", Utils.locationToString(workLocationDeep)));
 					if(b.getType() == Material.DISPENSER) {
 						Vector fireDirection = ((Dispenser) b.getBlockData()).getFacing().getDirection();
 						armorStand.teleport(workLocationDeep.clone().add(fireDirection).add(0,-1,0));
@@ -85,7 +144,7 @@ public enum TrapType {
 						a.setFireTicks(10*20);
 						a.setGravity(false);
 						a.setVelocity(fireDirection.clone().multiply(20));
-						a.setSilent(false);
+						a.setSilent(true);
 						new BukkitRunnable() {
 
 							@Override

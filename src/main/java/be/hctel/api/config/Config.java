@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Config extends JSONObject {
+public class Config {
 	private File file;
 	private JSONObject config;
 	
@@ -28,9 +28,11 @@ public class Config extends JSONObject {
 			config = new JSONObject();
 		} else {
 			config = new JSONObject(out);
-		}
-		
-		
+		}		
+	}
+	
+	public JSONObject getConfig() {
+		return this.config;
 	}
 	
 	public void save() throws IOException {

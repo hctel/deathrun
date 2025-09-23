@@ -4,8 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.json.JSONObject;
 
-import be.hctel.api.config.Config;
-
 /**
  * 
  * @author <a href="https://hctel.net/">hctel</a>
@@ -14,7 +12,7 @@ import be.hctel.api.config.Config;
 public class GameMap {
 	private World world;
 	private Location spawnLocation;
-	private Config worldConfig;
+	private JSONObject worldConfig;
 	
 	/**
 	 * This object represents a Game Map world.
@@ -22,7 +20,7 @@ public class GameMap {
 	 * @param spawnLocation the Map's {@link org.bukkit.Location}
 	 * @param worldConfig the Map's JSON Config (represented by a {@link org.json.JSONObject})
 	 */
-	public GameMap(World world, Location spawnLocation, Config worldConfig) {
+	public GameMap(World world, Location spawnLocation, JSONObject worldConfig) {
 		this.world = world;
 		this.spawnLocation = spawnLocation;
 		this.worldConfig = worldConfig;

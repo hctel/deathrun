@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.concurrent.RecursiveTask;
 
 import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -260,16 +261,10 @@ public class Utils {
 	public static void sendActionBarMessage(Player player, String msg) {
 		player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(msg));
 	}
-	/**
-	 * A quick way to create an ItemStack and make the code cleaner
-	 * @param material the material of the ItemStack
-	 * @param damage the durability value of the ItemStack
-	 * @param name the name of the ItemStack
-	 * @return the generated ItemStack
-	 */
-	public static ItemStack createQuickItemStack(Material material, short damage, String name) {
-		@SuppressWarnings("deprecation")
-		ItemStack toReturn = new ItemStack(material, 1, damage);
+	
+	
+	public static ItemStack createQuickItemStack(Material material, String name) {
+		ItemStack toReturn = new ItemStack(material, 1);
 		ItemMeta meta = toReturn.getItemMeta();
 		meta.setDisplayName(name);
 		toReturn.setItemMeta(meta);
@@ -277,14 +272,13 @@ public class Utils {
 		
 	}
 	
-	public static ItemStack createQuickItemStack(Material material, short damage, String name, String...lore) {
-		return createQuickItemStack(material, damage, false, name, lore);
+	public static ItemStack createQuickItemStack(Material material, String name, String...lore) {
+		return createQuickItemStack(material, false, name, lore);
 		
 	}
 	
-	public static ItemStack createQuickItemStack(Material material, short damage, boolean enchanted, String name, String...lore) {
-		@SuppressWarnings("deprecation")
-		ItemStack toReturn = new ItemStack(material, 1, damage);
+	public static ItemStack createQuickItemStack(Material material, boolean enchanted, String name, String...lore) {
+		ItemStack toReturn = new ItemStack(material, 1);
 		ItemMeta meta = toReturn.getItemMeta();
 		meta.setDisplayName(name);
 		if(enchanted) {
@@ -565,6 +559,27 @@ public class Utils {
 		}
 	  
 	  public static String locationToString(Location loc) {
+		  if(loc == null) return "null";
 		  return String.format("(%d, %d, %d)", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	  }
+	  
+	  public static JSONObject locationToJson(Location loc) {
+		  JSONObject o = new JSONObject();
+		  o.put("world", loc.getWorld().getName());
+		  o.put("x", loc.getX());
+		  o.put("y", loc.getY());
+		  o.put("z", loc.getZ());
+		  o.put("yaw", loc.getYaw());
+		  o.put("pitch", loc.getPitch());
+		  return o;
+	  }
+	  
+	  public static Location jsonToLocation(JSONObject o) {
+		  try {
+			  if(o.has("yaw")) return new Location(Bukkit.getWorld(o.getString("world")), o.getDouble("x"), o.getDouble("y"), o.getDouble("z"), o.getFloat("yaw"), o.getFloat("pitch"));
+			  else return new Location(Bukkit.getWorld(o.getString("world")), o.getDouble("x"), o.getDouble("y"), o.getDouble("z"));
+		  } catch(Exception e) {
+			  throw new IllegalArgumentException("One of the needed JSON keys is missing or damaged");
+		  }
 	  }
 }

@@ -13,4 +13,8 @@ public class MainGameEngine {
 		player.sendTitle("§4§l✖", "You died!", 0, 50, 20);
 	}
 	
+	public static Role getRole(Player player) {
+		return Role.TEST;
+	}
+	
 }

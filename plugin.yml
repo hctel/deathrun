@@ -18,3 +18,15 @@ commands:
     usage: /gm <0-3>
     permission: dr.admin
     description: Changes your gamemode
+  dms:
+    usage: /dmp <runner|death>
+    permission: dr.admin
+    description: Saves a new map spawn
+  traptool:
+    usage: /traptool <type> <width> <steps> <delay> <resetDelay> <cooldownDelay>
+    permission: dr.admin
+    description: Opens the trap tool
+  savetrap:
+    usage: /savetrap
+    permission: dr.admin
+    description: Saves a trap created from the trap tool

@@ -6,7 +6,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.json.JSONObject;
+import org.mvplugins.multiverse.core.world.LoadedMultiverseWorld;
 
+import be.hctel.api.Utils;
 import be.hctel.renaissance.deathrun.DeathRun;
 
 public class StaffCommands implements CommandExecutor {
@@ -34,6 +37,17 @@ public class StaffCommands implements CommandExecutor {
 				} catch (NumberFormatException e) {
 					player.sendMessage("§cPlease enter a valid number!");
 				}
+			}
+			if(command.getName().equalsIgnoreCase("dms")) {
+				if(args.length == 1) {
+					if(args[0].equalsIgnoreCase("runner") | args[0].equals("death")) {
+						JSONObject mapConfig = plugin.mapManager.getMapConfig(player.getWorld());
+						mapConfig.put(args[0] + "Spawn", Utils.locationToJson(player.getLocation()));
+						if(args[0].equalsIgnoreCase("runner")) ((LoadedMultiverseWorld) plugin.worldManager.getWorld(player.getWorld()).get()).setSpawnLocation(player.getLocation());
+						return true;
+					}
+				}
+				player.sendMessage("§cPlease enter a valid spawn type (runner|death)");
 			}
 		}
 		return false;

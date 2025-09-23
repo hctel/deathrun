@@ -9,6 +9,8 @@ import org.mvplugins.multiverse.core.world.WorldManager;
 
 import be.hctel.renaissance.deathrun.commands.StaffCommands;
 import be.hctel.renaissance.deathrun.commands.TestTrapCommand;
+import be.hctel.renaissance.deathrun.commands.TrapCommands;
+import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 import be.hctel.renaissance.deathrun.listeners.BlockListeners;
 import be.hctel.renaissance.deathrun.listeners.PlayerListener;
 import be.hctel.renaissance.global.mapmanager.MapManager;
@@ -24,6 +26,7 @@ public class DeathRun extends JavaPlugin {
 	public WorldManager worldManager;
 	
 	public MapManager mapManager; 
+	public MainGameEngine mainGameEngine;
 
 	@Override
 	public void onEnable() {
@@ -44,16 +47,21 @@ public class DeathRun extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		
+		mapManager.onDisable();
 	}
 	
 	private void loadCommands() {
+		StaffCommands staffCommands = new StaffCommands(this);
+		TrapCommands trapCommands = new TrapCommands(this);
 		getCommand("testtrap").setExecutor(new TestTrapCommand(this));
-		getCommand("gm").setExecutor(new StaffCommands(this));
+		getCommand("gm").setExecutor(staffCommands);
+		getCommand("dms").setExecutor(staffCommands);
+		getCommand("traptool").setExecutor(trapCommands);
+		getCommand("savetrap").setExecutor(trapCommands);
 	}
 	
 	private void registerListeners() {
-		getServer().getPluginManager().registerEvents(new PlayerListener(), plugin);
+		getServer().getPluginManager().registerEvents(new PlayerListener(this), plugin);
 		getServer().getPluginManager().registerEvents(new BlockListeners(), plugin);
 	}
 }

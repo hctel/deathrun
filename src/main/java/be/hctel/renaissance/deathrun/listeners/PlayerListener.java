@@ -5,15 +5,23 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import be.hctel.renaissance.deathrun.DeathRun;
 import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 
 
 public class PlayerListener implements Listener {
+	
+	DeathRun plugin;
+	
+	public PlayerListener(DeathRun plugin) {
+		this.plugin = plugin;
+	}
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
@@ -55,6 +63,12 @@ public class PlayerListener implements Listener {
 		default: break;
 		}
 		if(e.getPlayer().isInWater()) MainGameEngine.killPlayer(e.getPlayer());
+	}
+	
+	@EventHandler
+	public void onChat(AsyncPlayerChatEvent e) {
+		e.setCancelled(true);
+		plugin.getServer().broadcastMessage(String.format("<%s> %s", e.getPlayer().getDisplayName(), e.getMessage()));
 	}
 	
 	@EventHandler

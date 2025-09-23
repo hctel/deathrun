@@ -9,6 +9,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import be.hctel.api.Utils;
+
 public class Trap {
 	private Trap thisTrap;
 	
@@ -47,47 +49,6 @@ public class Trap {
 	private BukkitRunnable resetTask;
 	
 	private ArrayList<BlockState> changedBlocks = new ArrayList<BlockState>();
-	
-	/**
-	 * Creates an horizontal non-resetting trap
-	 * @param plugin this plugin ({@link org.bukkit.plugin.Plugin})
-	 * @param startLocation the trap's origin {@link org.bukkit.Location}
-	 * @param stopLocation the trap's final {@link org.bukkit.Location}
-	 * @param width the width of the trap in blocks
-	 * @param steps the number of steps
-	 * @param delay the delay in ticks between each step
-	 * @param type the {@link TrapRype}
-	 * @param trapReset the trap reset delay (delay before the trap resets)
-	 * @param trapCooldown the trap cooldown delay (delay before the trap can be used again)
-	 *//*
-	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int width, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
-		this.plugin = plugin;
-		this.type = type;
-		this.startLocation = startLocation;
-		this.stopLocation = stopLocation;
-		this.steps = steps;
-		this.delay = delay;
-		this.method = this.type.getMethod();
-		this.trapReset = trapReset;
-		this.trapCooldown = trapCooldown;
-		
-		
-		stopLocation.clone().subtract(startLocation).getBlockX();
-		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
-		this.width = width;
-		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
-		this.length = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? this.trapArea.getBlockZ() : this.trapArea.getBlockX());
-		
-		this.travelDirection = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? new Vector(0, 0, this.trapArea.getBlockZ()/Math.abs(this.trapArea.getBlockZ())) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
-		this.crossVector = travelDirection.clone().getCrossProduct(new Vector(0,1,0));
-		this.stepDistance = Math.abs(((double) this.length)/((double) this.steps-1));
-		this.travelStep = travelDirection.clone();
-		this.travelStep.multiply(this.stepDistance);
-		this.workLocation = startLocation.clone();
-		
-		setupTasks();
-		this.thisTrap = this;
-	}*/
 	
 	/**
 	 * Creates a vertical resetting trap
@@ -171,14 +132,14 @@ public class Trap {
 		this.type = type;
 		this.startLocation = startLocation;
 		this.stopLocation = stopLocation;
-		this.steps = steps;
+		this.steps = (this.type.getForceSteps() == -1 ? steps : this.type.getForceSteps());
 		this.delay = delay;
 		this.method = this.type.getMethod();
 		this.trapReset = trapReset;
 		this.trapCooldown = trapCooldown;
 		this.height = Math.abs(height);
-		
-		this.height = (startLocation.getBlockY() < stopLocation.getBlockY() ? this.height : -this.height);		
+		this.height+=1;		
+		this.height = (startLocation.getBlockY() <= stopLocation.getBlockY() ? this.height : -this.height);		
 		
 		stopLocation.clone().subtract(startLocation).getBlockX();
 		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
@@ -203,6 +164,8 @@ public class Trap {
 	}
 	
 	public void startTrap() {
+		System.out.println(String.format("Performing trap!\n%s", this.toString()));
+		workLocation = startLocation.clone();
 		if(delay == 0) trapTask.runTask(plugin);
 		else trapTask.runTaskTimer(plugin, 0L, delay);
 		if(type.doesReset()) resetTask.runTaskLater(plugin, delay*(steps+2)+trapReset);
@@ -220,6 +183,10 @@ public class Trap {
 		return this.trapArea;
 	}
 	
+	public long getCooldownDelay() {
+		return this.trapCooldown;
+	}
+	
 	public int getLength() {
 		return this.length;
 	}
@@ -228,9 +195,11 @@ public class Trap {
 		return this.plugin;
 	}
 	
+	
+	
 	@Override
 	public String toString() {
-		return String.format("Trap origin: %d, %d, %d\nTrap end: %d, %d, %d\nTrap area: (%d, %d)\nTrap width: %d\nTrap length: %d\nDirection of travel: (%d, %d, %d)\nTravel step: (%f, %f, %f)\nCross Vector: (%d, %d, %d)\nTrap type: %s\n", startLocation.getBlockX(), startLocation.getBlockY(), startLocation.getBlockZ(), stopLocation.getBlockX(), stopLocation.getBlockY(), stopLocation.getBlockZ(), trapArea.getBlockX(), trapArea.getBlockZ(), width, length, travelDirection.getBlockX(), travelDirection.getBlockY(), travelDirection.getBlockZ(), travelStep.getX(), travelStep.getY(), travelStep.getZ(), crossVector.getBlockX(), crossVector.getBlockY(), crossVector.getBlockZ(), type.toString());
+		return String.format("Trap origin: %d, %d, %d\nTrap end: %d, %d, %d\nTrap area: (%d, %d)\nTrap width: %d\nTrap length: %d\nTrap height: %s\nDirection of travel: (%d, %d, %d)\nTravel step: (%f, %f, %f)\nCross Vector: (%d, %d, %d)\nTrap type: %s\nSteps count: %d", startLocation.getBlockX(), startLocation.getBlockY(), startLocation.getBlockZ(), stopLocation.getBlockX(), stopLocation.getBlockY(), stopLocation.getBlockZ(), trapArea.getBlockX(), trapArea.getBlockZ(), width, length, height, travelDirection.getBlockX(), travelDirection.getBlockY(), travelDirection.getBlockZ(), travelStep.getX(), travelStep.getY(), travelStep.getZ(), crossVector.getBlockX(), crossVector.getBlockY(), crossVector.getBlockZ(), type.toString(), this.steps);
 	}
 	
 	private void setupTasks() {
@@ -252,6 +221,7 @@ public class Trap {
 					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
 					for(int i = 0; i < steps; i++) {
 						method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector, thisTrap);
+						System.out.println(String.format("Current workLocation: %s", Utils.locationToString(workLocation)));
 						workLocation.add(travelStep);
 						stepnr++;
 					}
@@ -265,6 +235,7 @@ public class Trap {
 				public void run() {
 					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
 					method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector, thisTrap);
+					System.out.println(String.format("Current workLocation: %s", Utils.locationToString(workLocation)));
 					workLocation.add(travelStep);
 					stepnr++;
 					if(stepnr == steps) cancel();

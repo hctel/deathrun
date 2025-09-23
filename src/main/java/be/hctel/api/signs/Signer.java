@@ -109,7 +109,7 @@ public class Signer implements Listener {
 		if(editors.containsKey(e.getPlayer()) && e.getPlayer().isOp()) {
 			if(editors.get(e.getPlayer()).equalsIgnoreCase("remove ")) {
 				signs.remove(e.getBlock());
-				config.remove(e.getBlock().getLocation().getWorld().getName() + "," + e.getBlock().getLocation().getBlockX() + "," + e.getBlock().getLocation().getBlockY() + "," + e.getBlock().getLocation().getBlockZ());
+				config.getConfig().remove(e.getBlock().getLocation().getWorld().getName() + "," + e.getBlock().getLocation().getBlockX() + "," + e.getBlock().getLocation().getBlockY() + "," + e.getBlock().getLocation().getBlockZ());
 				e.getPlayer().sendMessage("�aRemoved this sign from Signer.");
 				editors.remove(e.getPlayer());
 			} else {
@@ -126,7 +126,7 @@ public class Signer implements Listener {
 					JSONObject signJson = new JSONObject();
 					signJson.put("type", type.getName());
 					signJson.put("data", data.getData());
-					config.put(data.getLocation().getWorld().getName() + "," + data.getLocation().getBlockX() + "," + data.getLocation().getBlockY() + "," + data.getLocation().getBlockZ(), signJson);
+					config.getConfig().put(data.getLocation().getWorld().getName() + "," + data.getLocation().getBlockX() + "," + data.getLocation().getBlockY() + "," + data.getLocation().getBlockZ(), signJson);
 					e.getPlayer().sendMessage("�aAdded the sign to Signer.");
 					editors.remove(e.getPlayer());
 				}
@@ -177,9 +177,9 @@ public class Signer implements Listener {
 	private void loadSigns() {
 		if(!allSignsLoaded) {
 			plugin.getLogger().info("Loading signs...");
-			for(String key : config.keySet()) {
+			for(String key : config.getConfig().keySet()) {
 				String[] signPos = key.split(",");
-				SignData data = new SignData(SignType.getfromName(config.getJSONObject(key).getString("type")), config.getJSONObject(key).getString("data"), signPos);
+				SignData data = new SignData(SignType.getfromName(config.getConfig().getJSONObject(key).getString("type")), config.getConfig().getJSONObject(key).getString("data"), signPos);
 				if(!(data.getLocation().getBlock().getState() instanceof Sign)) {
 					plugin.getLogger().warning("Wrong block type detected for sign at " + signPos[1] + "," + signPos[2] + "," + signPos[3] + " in world " + signPos[0]);
 					plugin.getLogger().warning("Detected type: " + data.getLocation().getBlock().getType());
