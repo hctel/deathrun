@@ -81,6 +81,10 @@ public class MapManager {
 		return getMap(w).getConfig();
 	}
 	
+	public JSONArray getMapTraps(World w) {
+		return getMapConfig(w).getJSONArray("traps");
+	}
+	
 	public TrapManager getTrapManager(GameMap map) {
 		return trapManagers.get(map);
 	}

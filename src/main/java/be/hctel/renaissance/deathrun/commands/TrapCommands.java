@@ -32,9 +32,15 @@ public class TrapCommands implements CommandExecutor {
 					player.sendMessage(plugin.header + "§cInvalid command structure! Expected: <type> <width> <steps> <delay> <resetDelay> <cooldownDelay>");
 					return true;
 				} 
-				trapTools.put(player, new TrapTool(plugin, player, Integer.parseInt(args[1]), Integer.parseInt(args[2]), Long.parseLong(args[3]), Long.parseLong(args[4]), Long.parseLong(args[5]), TrapType.valueOf(args[0])));
-				player.getInventory().setItem(0, Utils.createQuickItemStack(Material.STICK, "§aTrap area"));
-				player.getInventory().setItem(1, Utils.createQuickItemStack(Material.DIAMOND, "§bTrap controls area"));
+				try {
+					trapTools.put(player, new TrapTool(plugin, player, Integer.parseInt(args[1]), Integer.parseInt(args[2]), Long.parseLong(args[3]), Long.parseLong(args[4]), Long.parseLong(args[5]), TrapType.valueOf(args[0].toUpperCase())));
+					player.getInventory().setItem(0, Utils.createQuickItemStack(Material.STICK, "§aTrap area"));
+					player.getInventory().setItem(1, Utils.createQuickItemStack(Material.DIAMOND, "§bTrap controls area"));
+				} catch(NumberFormatException e) {
+					player.sendMessage("§cPlease enter a valid number!");
+				} catch(IllegalArgumentException e) {
+					player.sendMessage("§cPlease enter a valid trap type!");
+				}
 				return true;
 				
 			} else if(cmd.getName().equalsIgnoreCase("savetrap")) {
@@ -43,7 +49,11 @@ public class TrapCommands implements CommandExecutor {
 				else {
 					TrapControls trap = trapTools.get(player).getTrap();
 					plugin.mapManager.getTrapManager(plugin.mapManager.getMap(player.getWorld())).addTrap(trap);
+					player.getInventory().removeItem(Utils.createQuickItemStack(Material.STICK, "§aTrap area"), Utils.createQuickItemStack(Material.DIAMOND, "§bTrap controls area"));
 				}
+				return true;
+			} else if(cmd.getName().equalsIgnoreCase("trapmanager")) {
+				plugin.mapManager.getTrapManager(plugin.mapManager.getMap(player.getWorld())).showTrapManager(player);
 				return true;
 			}
 		}

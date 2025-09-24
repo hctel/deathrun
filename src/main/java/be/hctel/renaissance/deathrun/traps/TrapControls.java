@@ -11,7 +11,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -23,15 +22,14 @@ import org.json.JSONObject;
 
 import be.hctel.api.Utils;
 import be.hctel.renaissance.deathrun.DeathRun;
-import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 import be.hctel.renaissance.deathrun.engine.Role;
 
 public class TrapControls implements Listener {
 
 	private DeathRun plugin;
 	
-	private static ItemStack triggerItem = Utils.createQuickItemStack(Material.MAGMA_CREAM, "§a§lTrigger trap!");
-	private static ItemStack cooldownItem = Utils.createQuickItemStack(Material.SLIME_BALL, "§cTrap on cooldown...");
+	private ItemStack triggerItem = Utils.createQuickItemStack(Material.MAGMA_CREAM, "§a§lTrigger trap!");
+	private ItemStack cooldownItem = Utils.createQuickItemStack(Material.SLIME_BALL, "§cTrap on cooldown...");
 	
 	private Location controlsStartLocation, controlsEndLocation, controlsCenterLocation;
 	private Vector controlsSize;
@@ -103,6 +101,14 @@ public class TrapControls implements Listener {
 		setupRunnables();
 	}
 	
+	public TrapType getType() {
+		return type;
+	}
+	
+	public Location getTrapStartLocation() {
+		return trapStartLocation;
+	}
+	
 	private void setupRunnables() {
 		postTrapTask = new BukkitRunnable() {
 
@@ -120,7 +126,7 @@ public class TrapControls implements Listener {
 							if(E instanceof Player) {
 								Player player = (Player) E;
 								if(player.getInventory().contains(cooldownItem)) {
-									player.getInventory().setItem(3, triggerItem);
+									player.getInventory().setItem(4, triggerItem);
 								}
 							}
 						}
@@ -156,32 +162,41 @@ public class TrapControls implements Listener {
 			new Trap(plugin, trapStartLocation, trapStopLocation, width, height, steps, delay, type, trapResetDelay, cooldownDelay).startTrap();
 			status = TrapStatus.COOLDOWN0;
 			for(Block B : glassBlocks) B.setType(Material.RED_STAINED_GLASS);
-			postTrapTask.runTaskLater(plugin, cooldownDelay/20);
+			postTrapTask.runTaskLater(plugin, cooldownDelay/2);
 			for(Entity E : centerEntity.getNearbyEntities(controlsSize.getX()/2, controlsSize.getY()/2, controlsSize.getZ()/2)) {
 				if(E instanceof Player) {
 					Player player = (Player) E;
 					if(player.getInventory().contains(triggerItem)) {
-						player.getInventory().setItem(3, cooldownItem);
+						player.getInventory().setItem(4, cooldownItem);
 					}
 				}
 			}
 		}
 	}
 
-	@EventHandler(priority = EventPriority.MONITOR)
+	@EventHandler
 	private void onMove(PlayerMoveEvent e) {
-		if(MainGameEngine.getRole(e.getPlayer()) != Role.RUNNER) {
-			List<Entity> nearbyEntities = centerEntity.getNearbyEntities(controlsSize.getX()/2, controlsSize.getY()/2, controlsSize.getZ()/2);
+		if(plugin.mainGameEngine.getRole(e.getPlayer()) != Role.RUNNER) {
+			List<Entity> nearbyEntities = centerEntity.getNearbyEntities((controlsSize.getX()/2)-0.5, controlsSize.getY()/2, (controlsSize.getZ()/2)-0.5);
+			List<Entity> nearbyEntitiesPlus1 = centerEntity.getNearbyEntities((controlsSize.getX()/2)+0.5, controlsSize.getY()/2, (controlsSize.getZ()/2)+0.5);
 			if(nearbyEntities.size() != 0) {
 				if(nearbyEntities.contains(e.getPlayer())) {
-					if(status == TrapStatus.READY) {
-						e.getPlayer().getInventory().setItem(3, triggerItem);
+					new BukkitRunnable() {
+						@Override
+						public void run() {
+							if(status == TrapStatus.READY) {
+								e.getPlayer().getInventory().setItem(4, triggerItem);
+							}
+							else {
+								e.getPlayer().getInventory().setItem(4, cooldownItem);
+							}
+						}
+					}.runTaskLater(plugin, 1L);
+					return;
+				} else if(nearbyEntitiesPlus1.size() != 0) {
+					if(nearbyEntitiesPlus1.contains(e.getPlayer()) && e.getPlayer().getInventory().contains(triggerItem) | e.getPlayer().getInventory().contains(cooldownItem)) {
+						e.getPlayer().getInventory().setItem(4, null);
 					}
-					else {
-						e.getPlayer().getInventory().setItem(3, cooldownItem);
-					}
-				} else if(e.getPlayer().getInventory().contains(triggerItem) | e.getPlayer().getInventory().contains(cooldownItem)) {
-					e.getPlayer().getInventory().setItem(3, null);
 				}
 			}
 		}
@@ -204,8 +219,7 @@ public class TrapControls implements Listener {
 	
 	public void serverStop() {
 		centerEntity.remove();
-	}
-	
+	}	
 	
 	public static TrapControls getFromJsonObject(DeathRun plugin, JSONObject o) {
 		try {

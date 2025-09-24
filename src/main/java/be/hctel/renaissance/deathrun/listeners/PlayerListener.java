@@ -12,7 +12,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import be.hctel.renaissance.deathrun.DeathRun;
-import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 
 
 public class PlayerListener implements Listener {
@@ -62,7 +61,7 @@ public class PlayerListener implements Listener {
 		}
 		default: break;
 		}
-		if(e.getPlayer().isInWater()) MainGameEngine.killPlayer(e.getPlayer());
+		if(e.getPlayer().isInWater()) plugin.mainGameEngine.killPlayer(e.getPlayer());
 	}
 	
 	@EventHandler

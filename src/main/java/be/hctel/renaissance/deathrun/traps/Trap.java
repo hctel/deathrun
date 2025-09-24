@@ -5,16 +5,15 @@ import java.util.ArrayList;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockState;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import be.hctel.api.Utils;
+import be.hctel.renaissance.deathrun.DeathRun;
 
 public class Trap {
 	private Trap thisTrap;
 	
-	private Plugin plugin;
+	private DeathRun plugin;
 	
 	private TrapType type;
 	
@@ -63,7 +62,7 @@ public class Trap {
 	 * 
 	 * @throws {@link IllegalArgumentException} if the {@link TrapType}'s getOrientation() method returns a vertical trap type. <b>OR</b> if the trap's dimmensions arent' vertical
 	 */
-	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
+	public Trap(DeathRun plugin, Location startLocation, Location stopLocation, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		if(type.getOrientation() != TrapOrientation.VERTICAL) throw new IllegalArgumentException("TrapType is not a vertical trap");
 		//if(Math.abs(stopLocation.getBlockX() - startLocation.getBlockX())+Math.abs(stopLocation.getBlockZ() - startLocation.getBlockZ()) != Math.sqrt(Math.abs(stopLocation.getBlockX() - startLocation.getBlockX())^2+Math.abs(stopLocation.getBlockZ() - startLocation.getBlockZ()^2))) throw new IllegalArgumentException("Trap is not a vertical trap");
 		this.plugin = plugin;
@@ -93,7 +92,7 @@ public class Trap {
 		this.thisTrap = this;
 	}
 	
-	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int width, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
+	public Trap(DeathRun plugin, Location startLocation, Location stopLocation, int width, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		this.plugin = plugin;
 		this.type = type;
 		this.startLocation = startLocation;
@@ -127,7 +126,7 @@ public class Trap {
 		this.thisTrap = this;
 	}
 	
-	public Trap(Plugin plugin, Location startLocation, Location stopLocation, int width, int height, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
+	public Trap(DeathRun plugin, Location startLocation, Location stopLocation, int width, int height, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		this.plugin = plugin;
 		this.type = type;
 		this.startLocation = startLocation;
@@ -145,14 +144,15 @@ public class Trap {
 		this.ySize = stopLocation.clone().subtract(startLocation).getBlockY();
 		this.width = (type.getOrientation() == TrapOrientation.VERTICAL ? Math.abs(ySize)+1 : width);
 		this.trapArea = stopLocation.clone().subtract(startLocation).toVector();
-		this.length = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? this.trapArea.getBlockZ() : this.trapArea.getBlockX());
 		
 		if(type.getOrientation() == TrapOrientation.VERTICAL) {
-			this.travelDirection = (this.trapArea.getBlockX() == 0 ? new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
+			this.travelDirection = (this.trapArea.getBlockX() == 0 ? new Vector(0, 0, Math.signum(this.trapArea.getBlockZ())) : new Vector(Math.signum(this.trapArea.getBlockX()), 0, 0));
 			this.crossVector = new Vector(0, Integer.signum(trapArea.getBlockY()), 0);
+			this.length = (this.trapArea.getBlockX() == 0 ? Math.abs(this.trapArea.getBlockZ()) : Math.abs(this.trapArea.getBlockX()));
 		} else {
 			this.travelDirection = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? new Vector(0, 0, this.trapArea.getBlockZ()/Math.abs(this.trapArea.getBlockZ())) : new Vector(this.trapArea.getBlockX()/Math.abs(this.trapArea.getBlockX()), 0, 0));
 			this.crossVector = travelDirection.clone().getCrossProduct(new Vector(0,1,0));
+			this.length = (Math.abs(this.trapArea.getBlockX()) == this.width-1 ? this.trapArea.getBlockZ() : this.trapArea.getBlockX());
 		}
 		this.stepDistance = Math.abs(((double) this.length)/((double) this.steps-1));
 		this.travelStep = travelDirection.clone();
@@ -191,7 +191,7 @@ public class Trap {
 		return this.length;
 	}
 	
-	public Plugin getPlugin() {
+	public DeathRun getPlugin() {
 		return this.plugin;
 	}
 	
@@ -221,7 +221,6 @@ public class Trap {
 					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
 					for(int i = 0; i < steps; i++) {
 						method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector, thisTrap);
-						System.out.println(String.format("Current workLocation: %s", Utils.locationToString(workLocation)));
 						workLocation.add(travelStep);
 						stepnr++;
 					}
@@ -235,7 +234,6 @@ public class Trap {
 				public void run() {
 					if(!type.isSilent()) startLocation.getWorld().playSound(startLocation, Sound.ENTITY_CHICKEN_EGG, 2.5f, 1f);
 					method.trapStep(workLocation, width, height, stepnr, travelDirection, crossVector, thisTrap);
-					System.out.println(String.format("Current workLocation: %s", Utils.locationToString(workLocation)));
 					workLocation.add(travelStep);
 					stepnr++;
 					if(stepnr == steps) cancel();

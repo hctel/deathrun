@@ -17,7 +17,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import be.hctel.api.Utils;
-import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 
 public enum TrapType {
 	WALL_SPAWN(new TrapMethod() {
@@ -33,7 +32,7 @@ public enum TrapType {
 			}
 		}
 		
-	}, false, true, TrapOrientation.VERTICAL),
+	}, false, true, TrapOrientation.VERTICAL, Material.GOLD_BLOCK),
 	LAUNCH_PLAYERS(new TrapMethod() {
 
 		@Override
@@ -54,7 +53,7 @@ public enum TrapType {
 			}
 		}
 		
-	}, true, false, TrapOrientation.HORIZONTAL, 1),
+	}, true, false, TrapOrientation.HORIZONTAL, Material.PISTON, 1),
 	COBBLE_STAIRS(new TrapMethod() {
 
 		@Override
@@ -72,7 +71,7 @@ public enum TrapType {
 			}
 		}
 		
-	}, false, true, TrapOrientation.TRID),
+	}, false, true, TrapOrientation.TRID, Material.COBBLESTONE_STAIRS),
 	TNT(new TrapMethod() {
 		@Override
 		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector,
@@ -83,12 +82,12 @@ public enum TrapType {
 			for(Entity E : workLocation.getWorld().getNearbyEntities(workLocation, trap.getArea().getX()/2, 5, trap.getArea().getZ()/2)) {
 				if(E instanceof Player) {
 					Player player = (Player) E;
-					MainGameEngine.killPlayer(player);
+					trap.getPlugin().mainGameEngine.killPlayer(player);
 				}
 			}
 		}
 		
-	}, true, false, TrapOrientation.HORIZONTAL, 1),
+	}, true, false, TrapOrientation.HORIZONTAL, Material.TNT, 1),
 	FIRE_FLOOR(new TrapMethod() {
 		@Override
 		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector,
@@ -103,7 +102,7 @@ public enum TrapType {
 				workLocation.add(crossVector);
 			}
 		}
-	}, true, true, TrapOrientation.HORIZONTAL),
+	}, true, true, TrapOrientation.HORIZONTAL, Material.FLINT_AND_STEEL),
 	FLOOD_FLOOR(new TrapMethod() {
 		@Override
 		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector,
@@ -119,7 +118,7 @@ public enum TrapType {
 				workLocation.add(crossVector);
 			}
 		}
-	}, true, true, TrapOrientation.HORIZONTAL),
+	}, true, true, TrapOrientation.HORIZONTAL, Material.WATER_BUCKET),
 	FIRE_ARROWS(new TrapMethod() {
 		@Override
 		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
@@ -145,6 +144,7 @@ public enum TrapType {
 						a.setGravity(false);
 						a.setVelocity(fireDirection.clone().multiply(20));
 						a.setSilent(true);
+						a.getWorld().playSound(a.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1f, 1f);
 						new BukkitRunnable() {
 
 							@Override
@@ -161,7 +161,7 @@ public enum TrapType {
 			}
 			armorStand.remove();
 		}
-	}, true, false, TrapOrientation.TRID),
+	}, true, false, TrapOrientation.TRID, Material.ARROW),
 	PARKOUR_DISAPPEAR(new TrapMethod() {
 
 		@Override
@@ -179,7 +179,7 @@ public enum TrapType {
 			}
 		}
 		
-	}, false, true, TrapOrientation.TRID),
+	}, false, true, TrapOrientation.TRID, Material.RED_TERRACOTTA),
 	LANTERN_DISAPPEAR(new TrapMethod() {
 		@Override
 		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {	
@@ -191,7 +191,7 @@ public enum TrapType {
 				workLocation.add(crossVector);
 			}
 		}
-	}, false, true, TrapOrientation.HORIZONTAL),	
+	}, false, true, TrapOrientation.HORIZONTAL, Material.SEA_LANTERN),	
 	
 	LADDER_DISPAWN(new TrapMethod() {
 
@@ -206,7 +206,7 @@ public enum TrapType {
 			}
 		}
 		
-	}, false, true, TrapOrientation.VERTICAL),
+	}, false, true, TrapOrientation.VERTICAL, Material.LADDER),
 	
 	FIRE_TRAIL(new TrapMethod() {
 
@@ -218,14 +218,14 @@ public enum TrapType {
 				for(Entity E : workLocation.getWorld().getNearbyEntities(workLocation, 1, 0.5, 1)) {
 					if(E instanceof Player) {
 						Player player = (Player) E;
-						MainGameEngine.killPlayer(player);
+						trap.getPlugin().mainGameEngine.killPlayer(player);
 					}
 				}
 				workLocation.add(crossVector);
 			}
 		}
 		
-	}, true, false, TrapOrientation.HORIZONTAL),
+	}, true, false, TrapOrientation.HORIZONTAL, Material.DISPENSER),
 	
 	GLASS_FLOOR(new TrapMethod() {
 		@Override
@@ -238,7 +238,7 @@ public enum TrapType {
 				workLocation.add(crossVector);
 			}
 		}
-	}, true, true, TrapOrientation.HORIZONTAL);
+	}, true, true, TrapOrientation.HORIZONTAL, Material.WHITE_STAINED_GLASS);
 	
 	
 	
@@ -246,21 +246,24 @@ public enum TrapType {
 	private boolean silent;
 	private boolean resets;
 	private TrapOrientation orientation;
+	private Material guiRepresentation;
 	private int forceSteps = -1;
 	
-	private TrapType(TrapMethod method, boolean silent, boolean resets, TrapOrientation orientation) {
+	private TrapType(TrapMethod method, boolean silent, boolean resets, TrapOrientation orientation, Material guiRepresentation) {
 		this.method = method;
 		this.silent = silent;
 		this.resets = resets;
 		this.orientation = orientation;
+		this.guiRepresentation = guiRepresentation;
 	}
 	
-	private TrapType(TrapMethod method, boolean silent, boolean resets, TrapOrientation orientation, int forceSteps) {
+	private TrapType(TrapMethod method, boolean silent, boolean resets, TrapOrientation orientation, Material guiRepresentation, int forceSteps) {
 		this.method = method;
 		this.silent = silent;
 		this.resets = resets;
 		this.orientation = orientation;
 		this.forceSteps = forceSteps;
+		this.guiRepresentation = guiRepresentation;
 	}
 	
 	public TrapMethod getMethod() {
@@ -279,8 +282,16 @@ public enum TrapType {
 		return this.orientation;
 	}
 	
+	public Material getGuiRepresentation() {
+		return this.guiRepresentation;
+	}
+	
 	public int getForceSteps() {
 		return this.forceSteps;
+	}
+	
+	public String getFamiliarName() {
+		return Utils.capitalize(this.toString().replace("_", " ").toLowerCase());
 	}
 	
 }

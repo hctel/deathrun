@@ -10,6 +10,7 @@ import org.mvplugins.multiverse.core.world.WorldManager;
 import be.hctel.renaissance.deathrun.commands.StaffCommands;
 import be.hctel.renaissance.deathrun.commands.TestTrapCommand;
 import be.hctel.renaissance.deathrun.commands.TrapCommands;
+import be.hctel.renaissance.deathrun.commands.completers.TrapCommandCompleter;
 import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 import be.hctel.renaissance.deathrun.listeners.BlockListeners;
 import be.hctel.renaissance.deathrun.listeners.PlayerListener;
@@ -39,6 +40,7 @@ public class DeathRun extends JavaPlugin {
 		worldManager = mvAPI.getWorldManager();
 		
 		mapManager = new MapManager(this);
+		mainGameEngine = new MainGameEngine(this);
 		
 		loadCommands();
 		registerListeners();
@@ -53,11 +55,14 @@ public class DeathRun extends JavaPlugin {
 	private void loadCommands() {
 		StaffCommands staffCommands = new StaffCommands(this);
 		TrapCommands trapCommands = new TrapCommands(this);
+		TrapCommandCompleter trapCompleter = new TrapCommandCompleter();
 		getCommand("testtrap").setExecutor(new TestTrapCommand(this));
 		getCommand("gm").setExecutor(staffCommands);
 		getCommand("dms").setExecutor(staffCommands);
 		getCommand("traptool").setExecutor(trapCommands);
+		getCommand("traptool").setTabCompleter(trapCompleter);
 		getCommand("savetrap").setExecutor(trapCommands);
+		getCommand("trapmanager").setExecutor(trapCommands);
 	}
 	
 	private void registerListeners() {
