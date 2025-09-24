@@ -30,3 +30,7 @@ commands:
     usage: /savetrap
     permission: dr.admin
     description: Saves a trap created from the trap tool
+  trapmanager:
+    usage: /trapmanager
+    permission: dr.admin
+    description: Shows the trap manager
