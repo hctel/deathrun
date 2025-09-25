@@ -552,10 +552,10 @@ public class Utils {
 		  	BlockData data = b.getBlockData();
 		    Location loc = b.getLocation().add(0.5, 0.01, 0.5);
 
-		    b.setType(Material.AIR); // d’abord supprimer le bloc
+		    b.setType(Material.AIR);
 		    FallingBlock fb = b.getWorld().spawnFallingBlock(loc, data);
 
-		    fb.setDropItem(false); // évite que le bloc drop quand il touche le sol
+		    fb.setDropItem(false);
 		}
 	  
 	  public static String locationToString(Location loc) {
