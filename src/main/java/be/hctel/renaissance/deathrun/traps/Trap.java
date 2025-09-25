@@ -10,6 +10,11 @@ import org.bukkit.util.Vector;
 
 import be.hctel.renaissance.deathrun.DeathRun;
 
+/**
+ * Trap class. Manages timing for traps.
+ * @author <a href="https://hctel.net/">hctel</a>: <a href="https://links.hctel.net/">LinkTree</a>
+ *
+ */
 public class Trap {
 	private Trap thisTrap;
 	
@@ -126,6 +131,19 @@ public class Trap {
 		this.thisTrap = this;
 	}
 	
+	/**
+	 * Creates a trap.
+	 * @param plugin this plugin's main class
+	 * @param startLocation the start {@link org.bukkit.Location}
+	 * @param stopLocation the end {@link org.bukkit.Location}
+	 * @param width the trap's width in blocks
+	 * @param height the trap's height
+	 * @param steps the number of steps
+	 * @param delay the delay in ticks between each step
+	 * @param type the {@link TrapType}
+	 * @param trapReset the reset delay in ticks (delay during which the trap is "active")
+	 * @param trapCooldown the delay between each trap use
+	 */
 	public Trap(DeathRun plugin, Location startLocation, Location stopLocation, int width, int height, int steps, long delay, TrapType type, long trapReset, long trapCooldown) {
 		this.plugin = plugin;
 		this.type = type;
@@ -163,6 +181,9 @@ public class Trap {
 		this.thisTrap = this;
 	}
 	
+	/**
+	 * Starts the trap
+	 */
 	public void startTrap() {
 		System.out.println(String.format("Performing trap!\n%s", this.toString()));
 		workLocation = startLocation.clone();
@@ -171,14 +192,26 @@ public class Trap {
 		if(type.doesReset()) resetTask.runTaskLater(plugin, delay*(steps+2)+trapReset);
 	}
 	
+	/**
+	 * Gets the {@link org.bukkit.block.BlockState} of each changed block
+	 * @return the {@link org.bukkit.block.BlockState} of each changed block
+	 */
 	public ArrayList<BlockState> getBlockStateList() {
 		return this.changedBlocks;
 	}
 	
+	/**
+	 * Gets the center location
+	 * @return the center {@link org.bukkit.Location} location
+	 */
 	public Location getCenter() {
 		return new Location(startLocation.getWorld(), (stopLocation.getBlockX()+startLocation.getBlockX())/2, (stopLocation.getBlockY()+startLocation.getBlockY())/2, (stopLocation.getBlockZ()+startLocation.getBlockZ())/2);
 	}
 	
+	/**
+	 * Gets the trap area
+	 * @return the trap area represented by a {@link org.bukkit.util.Vector}
+	 */
 	public Vector getArea() {
 		return this.trapArea;
 	}
