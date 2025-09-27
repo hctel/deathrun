@@ -2,6 +2,7 @@ package be.hctel.renaissance.deathrun.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,6 +12,8 @@ import org.mvplugins.multiverse.core.world.LoadedMultiverseWorld;
 
 import be.hctel.api.Utils;
 import be.hctel.renaissance.deathrun.DeathRun;
+import be.hctel.renaissance.deathrun.misc.Checkpoint;
+import be.hctel.renaissance.global.mapmanager.GameMap;
 
 public class StaffCommands implements CommandExecutor {
 	
@@ -48,6 +51,37 @@ public class StaffCommands implements CommandExecutor {
 					}
 				}
 				player.sendMessage("§cPlease enter a valid spawn type (runner|death)");
+			}
+			if(command.getName().equalsIgnoreCase("cpd")) {
+				GameMap map = plugin.mapManager.getMap(player.getWorld());
+				Location checkpointLoc = player.getLocation();
+				Location respawnLoc = checkpointLoc.clone().add(player.getLocation().getDirection().multiply(3));
+				String name = String.format("Stage %d", map.getCheckpoints().size()+1);
+				int tokenCounts = 10;
+				switch(args.length) {
+				case 0:
+					break;
+				case 1:
+					try {
+						tokenCounts = Integer.parseInt(args[0]);
+					} catch(NumberFormatException e) {
+						player.sendRawMessage("§cPlease enter a valid number!");
+						return true;
+					}
+					break;
+				default:
+					try {
+						tokenCounts = Integer.parseInt(args[0]);
+					} catch(NumberFormatException e) {
+						player.sendRawMessage("§cPlease enter a valid number!");
+						return true;
+					}
+					name = args[1];
+					break;	
+						
+				}
+				map.addCheckpoint(new Checkpoint(checkpointLoc, respawnLoc, name, tokenCounts));
+				return true;
 			}
 		}
 		return false;

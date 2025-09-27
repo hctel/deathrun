@@ -25,7 +25,6 @@ public class Trap {
 	private Location startLocation;
 	private Location stopLocation;
 	private long trapReset;
-	@SuppressWarnings("unused")
 	private long trapCooldown;
 	
 	private Vector trapArea;
@@ -185,7 +184,6 @@ public class Trap {
 	 * Starts the trap
 	 */
 	public void startTrap() {
-		System.out.println(String.format("Performing trap!\n%s", this.toString()));
 		workLocation = startLocation.clone();
 		if(delay == 0) trapTask.runTask(plugin);
 		else trapTask.runTaskTimer(plugin, 0L, delay);

@@ -1,8 +1,13 @@
 package be.hctel.renaissance.global.mapmanager;
 
+import java.util.ArrayList;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.json.JSONObject;
+import org.mvplugins.multiverse.external.minidev.json.JSONArray;
+
+import be.hctel.renaissance.deathrun.misc.Checkpoint;
 
 /**
  * 
@@ -14,6 +19,8 @@ public class GameMap {
 	private Location spawnLocation;
 	private JSONObject worldConfig;
 	
+	private ArrayList<Checkpoint> checkpoints = new ArrayList<Checkpoint>();
+	
 	/**
 	 * This object represents a Game Map world.
 	 * @param world the Map's {@link org.bukkit.World} 
@@ -24,6 +31,13 @@ public class GameMap {
 		this.world = world;
 		this.spawnLocation = spawnLocation;
 		this.worldConfig = worldConfig;
+		if(worldConfig.has("checkpoints")) {
+			for(Object O : worldConfig.getJSONArray("checkpoints")) {
+				if(O instanceof JSONObject) {
+					checkpoints.add(Checkpoint.getFromJson((JSONObject) O));
+				}
+			}
+		} else worldConfig.put("checkpoints", new JSONArray());
 	}
 	
 	/**
@@ -48,5 +62,20 @@ public class GameMap {
 	 */
 	public JSONObject getConfig() {
 		return this.worldConfig;
+	}
+	
+	/**
+	 * Returns the ArrayList containing the checkpoints of a Game Map
+	 * @return
+	 */
+	public ArrayList<Checkpoint> getCheckpoints() {
+		return this.checkpoints;
+	}
+	
+	public void addCheckpoint(Checkpoint cp) {
+		checkpoints.add(cp);
+		worldConfig.getJSONArray("checkpoints").put(cp.getSaveJson());
+		System.out.println("Saved checkpoint");
+		System.out.println(worldConfig.getJSONArray("checkpoints"));
 	}
 }

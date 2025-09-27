@@ -34,3 +34,7 @@ commands:
     usage: /trapmanager
     permission: dr.admin
     description: Shows the trap manager
+  cpd:
+    usage: /cpd [tokencount] [name]
+    permission: dr.admin
+    description: Defines a checkpoint

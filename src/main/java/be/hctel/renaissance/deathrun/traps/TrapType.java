@@ -113,7 +113,6 @@ public enum TrapType {
 				if(b.getType() == Material.AIR) {
 					trap.getBlockStateList().add(b.getState());
 					b.setType(Material.WATER);
-					System.out.println(Utils.locationToString(workLocation));
 				}
 				workLocation.add(crossVector);
 			}
@@ -127,22 +126,16 @@ public enum TrapType {
 			armorStand.setVisible(false);
 			armorStand.setInvulnerable(true);
 			armorStand.setVisible(false);
-			armorStand.setBasePlate(false);
-			System.out.println("TRAP STEP");
 			for(int i = 0; i < width; i++) {
 				Location workLocationDeep = workLocation.clone();
-				System.out.println(String.format("Substep %d", i));
-				System.out.println(String.format("int h = %d; h < %d", Math.min(height, 0), Math.max(0, height)));
 				for(int h = Math.min(height, 0); h < Math.max(0, height); h++) {
 					Block b = workLocationDeep.getBlock();
-					System.out.println(String.format("Current workLocationDeep", Utils.locationToString(workLocationDeep)));
 					if(b.getType() == Material.DISPENSER) {
 						Vector fireDirection = ((Dispenser) b.getBlockData()).getFacing().getDirection();
 						armorStand.teleport(workLocationDeep.clone().add(fireDirection).add(0,-1,0));
 						Arrow a = armorStand.launchProjectile(Arrow.class, fireDirection);
 						a.setFireTicks(10*20);
-						a.setGravity(false);
-						a.setVelocity(fireDirection.clone().multiply(20));
+						a.setVelocity(fireDirection.clone().multiply(5));
 						a.setSilent(true);
 						a.getWorld().playSound(a.getLocation(), Sound.ENTITY_ARROW_SHOOT, 1f, 1f);
 						new BukkitRunnable() {
@@ -212,9 +205,9 @@ public enum TrapType {
 
 		@Override
 		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
-			Location workLocation = point.clone().add(0.5, 0.5, 0);
+			Location workLocation = point.clone().add(0.5, 0.5, 0.5);
 			for(int i = 0; i < width; i++) {
-				workLocation.getWorld().spawnParticle(Particle.FLAME, workLocation, 1, 0, 0, 0, 0);
+				workLocation.getWorld().spawnParticle(Particle.FLAME, workLocation, 2, 0.25, 0.25, 0.25, 0);
 				for(Entity E : workLocation.getWorld().getNearbyEntities(workLocation, 1, 0.5, 1)) {
 					if(E instanceof Player) {
 						Player player = (Player) E;

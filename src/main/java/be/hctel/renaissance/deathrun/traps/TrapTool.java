@@ -74,13 +74,11 @@ public class TrapTool implements Listener {
 						e.getPlayer().sendMessage(String.format(controlsStartMsg, Utils.locationToString(controlsStartLocation)));
 					}
 				}
-				System.out.println(String.format("%s, %s, %s, %s", Utils.locationToString(trapStartLocation), Utils.locationToString(trapEndLocation), Utils.locationToString(controlsStartLocation), Utils.locationToString(controlsEndLocation)));
 			}
 		}
 	}
 	
 	public TrapControls getTrap() {
-		System.out.println(String.format("%s, %s, %s, %s", Utils.locationToString(trapStartLocation), Utils.locationToString(trapEndLocation), Utils.locationToString(controlsStartLocation), Utils.locationToString(controlsEndLocation)));
 		if(trapStartLocation == null | trapEndLocation == null | controlsStartLocation == null | controlsEndLocation == null) {
 			player.sendMessage("§c1You must first define start and end positions!");
 		}

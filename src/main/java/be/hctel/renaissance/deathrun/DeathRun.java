@@ -3,6 +3,7 @@ package be.hctel.renaissance.deathrun;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.ScoreboardManager;
 import org.mvplugins.multiverse.core.MultiverseCore;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.mvplugins.multiverse.core.world.WorldManager;
@@ -28,6 +29,8 @@ public class DeathRun extends JavaPlugin {
 	
 	public MapManager mapManager; 
 	public MainGameEngine mainGameEngine;
+	
+	public ScoreboardManager scoreboardManager;
 
 	@Override
 	public void onEnable() {
@@ -41,6 +44,8 @@ public class DeathRun extends JavaPlugin {
 		
 		mapManager = new MapManager(this);
 		mainGameEngine = new MainGameEngine(this);
+		
+		scoreboardManager = getServer().getScoreboardManager();
 		
 		loadCommands();
 		registerListeners();
@@ -59,6 +64,7 @@ public class DeathRun extends JavaPlugin {
 		getCommand("testtrap").setExecutor(new TestTrapCommand(this));
 		getCommand("gm").setExecutor(staffCommands);
 		getCommand("dms").setExecutor(staffCommands);
+		getCommand("cpd").setExecutor(staffCommands);
 		getCommand("traptool").setExecutor(trapCommands);
 		getCommand("traptool").setTabCompleter(trapCompleter);
 		getCommand("savetrap").setExecutor(trapCommands);

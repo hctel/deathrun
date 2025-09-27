@@ -61,6 +61,13 @@ public class PlayerListener implements Listener {
 		}
 		default: break;
 		}
+		switch(e.getTo().getBlock().getType()) {
+		case NETHER_PORTAL: {
+			plugin.mainGameEngine.checkpoint(e.getPlayer());
+			break;
+		}
+		default: break;
+		}
 		if(e.getPlayer().isInWater()) plugin.mainGameEngine.killPlayer(e.getPlayer());
 	}
 	
