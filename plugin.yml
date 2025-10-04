@@ -38,3 +38,7 @@ commands:
     usage: /cpd [tokencount] [name]
     permission: dr.admin
     description: Defines a checkpoint
+  testheads:
+    usage: /testheads
+    permission: dr.admin
+    description: test command

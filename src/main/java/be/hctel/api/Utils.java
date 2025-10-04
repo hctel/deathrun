@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.RecursiveTask;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -37,7 +36,10 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.json.JSONException;
@@ -124,7 +126,7 @@ public class Utils {
 	 */
 	public static String getUserItemName(Material a) {
 		String aN = a.toString().toLowerCase().replace('_', ' ');
-		String aN1 = StringUtils.capitalize(aN);
+		String aN1 = aN.toLowerCase().replace(aN.charAt(0), aN.toUpperCase().charAt(0));
 		return aN1;
 	}
 	/**
@@ -581,5 +583,34 @@ public class Utils {
 		  } catch(Exception e) {
 			  throw new IllegalArgumentException("One of the needed JSON keys is missing or damaged");
 		  }
+	  }
+	  
+	  public static ItemStack skullBuilder(String skinURL, String skullName, int quantity) {
+		  try {
+				ItemStack stack = new ItemStack(Material.PLAYER_HEAD, quantity);
+				SkullMeta stackMeta = (SkullMeta) stack.getItemMeta();
+				PlayerProfile profile = Bukkit.createPlayerProfile("OwO");
+				PlayerTextures textures = profile.getTextures();
+				textures.setSkin(new URL(skinURL));
+				profile.setTextures(textures);
+				stackMeta.setOwnerProfile(profile);
+				stackMeta.setDisplayName("§r" + skullName);
+				stack.setItemMeta(stackMeta);
+				return stack;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			return null;
+	  }
+	  public static ItemStack skullBuilder(String skinURL, String skullName) {
+		  return skullBuilder(skinURL, skullName, 1);
+	  }
+	  
+	  public static ItemStack skullBuilder(String skinURL, int quantity) {
+		  return skullBuilder(skinURL, "Custom Head", quantity);
+	  }
+	  
+	  public static ItemStack skullBuilder(String skinURL) {
+		  return skullBuilder(skinURL, "Custom Head");
 	  }
 }

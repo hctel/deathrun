@@ -69,6 +69,7 @@ public class DeathRun extends JavaPlugin {
 		getCommand("traptool").setTabCompleter(trapCompleter);
 		getCommand("savetrap").setExecutor(trapCommands);
 		getCommand("trapmanager").setExecutor(trapCommands);
+		getCommand("testheads").setExecutor(staffCommands);
 	}
 	
 	private void registerListeners() {

@@ -83,6 +83,11 @@ public class StaffCommands implements CommandExecutor {
 				map.addCheckpoint(new Checkpoint(checkpointLoc, respawnLoc, name, tokenCounts));
 				return true;
 			}
+			if(command.getName().equalsIgnoreCase("testheads")) {
+				player.getInventory().setItem(3, Utils.skullBuilder("http://textures.minecraft.net/texture/f5347423ee55daa7923668fca8581985ff5389a45435321efad537af23d", "§a§lStrafe Left"));
+				player.getInventory().setItem(5, Utils.skullBuilder("http://textures.minecraft.net/texture/4ef356ad2aa7b1678aecb88290e5fa5a3427e5e456ff42fb515690c67517b8", "§a§lStrafe Right"));
+				player.getInventory().setItem(4, Utils.skullBuilder("http://textures.minecraft.net/texture/3b83bbccf4f0c86b12f6f79989d159454bf9281955d7e2411ce98c1b8aa38d8", "§a§lStrafe Backwards"));
+			}
 		}
 		return false;
 	}
