@@ -8,6 +8,7 @@ import org.mvplugins.multiverse.core.MultiverseCore;
 import org.mvplugins.multiverse.core.MultiverseCoreApi;
 import org.mvplugins.multiverse.core.world.WorldManager;
 
+import be.hctel.renaissance.cosmetics.CosmeticsManager;
 import be.hctel.renaissance.deathrun.commands.StaffCommands;
 import be.hctel.renaissance.deathrun.commands.TestTrapCommand;
 import be.hctel.renaissance.deathrun.commands.TrapCommands;
@@ -29,6 +30,7 @@ public class DeathRun extends JavaPlugin {
 	
 	private SQLConnector connector;
 	public DRStats stats;
+	public CosmeticsManager cosmetics;
 	
 	public MultiverseCore core;
 	public MultiverseCoreApi mvAPI;
@@ -50,6 +52,7 @@ public class DeathRun extends JavaPlugin {
 		loadCredentials();
 		connector = new SQLConnector(sqlUser, sqlHost, sqlPort, sqlDatabase, sqlPassowrd);
 		stats = new DRStats(this, connector);
+		cosmetics = new CosmeticsManager(connector, plugin);
 		
 		core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
 		mvAPI = core.getApi();
