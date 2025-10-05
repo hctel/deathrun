@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
+import org.joml.Random;
 
 import be.hctel.api.scoreboard.DynamicScoreboard;
 import be.hctel.renaissance.deathrun.DeathRun;
@@ -54,11 +55,26 @@ public class MainGameEngine {
 		this.map = plugin.mapManager.getMap(plugin.getServer().getWorld("world"));
 	}
 	
-	public void startGame(GameMap map, List<Player> wishDeaths) {
+	public void startGame(GameMap map, List<Player> wishDeaths, List<Player> wishRunner) {
+		for(Player P : plugin.getServer().getOnlinePlayers()) {
+			runners.add(P);
+		}
 		
 		if(wishDeaths.size() > 0) {
-			
+			Player chosenDeath = wishDeaths.get(new Random().nextInt(wishDeaths.size()-1));
+			plugin.cosmetics.addTokens(chosenDeath, -100);
+			deaths.add(chosenDeath);
+			runners.remove(chosenDeath);
+		} else {
+			Player chosenDeath = runners.get(new Random().nextInt(wishDeaths.size()-1));
+			while(wishRunner.contains(chosenDeath)) {
+				plugin.cosmetics.addTokens(chosenDeath, -50);
+				chosenDeath = runners.get(new Random().nextInt(wishDeaths.size()-1));
+			}
+			deaths.add(chosenDeath);
+			runners.remove(chosenDeath);
 		}
+		
 		for(Player P : plugin.getServer().getOnlinePlayers()) {
 			deathCount.put(P, 0);
 			points.put(P, 0);
