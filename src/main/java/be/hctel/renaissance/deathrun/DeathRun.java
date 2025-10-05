@@ -12,16 +12,23 @@ import be.hctel.renaissance.deathrun.commands.StaffCommands;
 import be.hctel.renaissance.deathrun.commands.TestTrapCommand;
 import be.hctel.renaissance.deathrun.commands.TrapCommands;
 import be.hctel.renaissance.deathrun.commands.completers.TrapCommandCompleter;
+import be.hctel.renaissance.deathrun.data.DRStats;
 import be.hctel.renaissance.deathrun.engine.MainGameEngine;
 import be.hctel.renaissance.deathrun.listeners.BlockListeners;
+import be.hctel.renaissance.deathrun.listeners.ConnectionListeners;
+import be.hctel.renaissance.deathrun.listeners.EntityTrapListeners;
 import be.hctel.renaissance.deathrun.listeners.PlayerListener;
 import be.hctel.renaissance.global.mapmanager.MapManager;
+import be.hctel.renaissance.global.storage.SQLConnector;
 
 public class DeathRun extends JavaPlugin {
 	
 	public String header = "§8▍ §§4Death§cRun§8 ▏ ";
 	
 	public Plugin plugin;
+	
+	private SQLConnector connector;
+	public DRStats stats;
 	
 	public MultiverseCore core;
 	public MultiverseCoreApi mvAPI;
@@ -31,20 +38,24 @@ public class DeathRun extends JavaPlugin {
 	public MainGameEngine mainGameEngine;
 	
 	public ScoreboardManager scoreboardManager;
+	
+	private String sqlUser, sqlHost, sqlDatabase, sqlPassowrd;
+	private int sqlPort;
 
 	@Override
 	public void onEnable() {
 		getLogger().info("Enabling DeathRun");
-		
 		plugin = this;
+		
+		loadCredentials();
+		connector = new SQLConnector(sqlUser, sqlHost, sqlPort, sqlDatabase, sqlPassowrd);
+		stats = new DRStats(this, connector);
 		
 		core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
 		mvAPI = core.getApi();
 		worldManager = mvAPI.getWorldManager();
-		
 		mapManager = new MapManager(this);
 		mainGameEngine = new MainGameEngine(this);
-		
 		scoreboardManager = getServer().getScoreboardManager();
 		
 		loadCommands();
@@ -55,6 +66,15 @@ public class DeathRun extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		mapManager.onDisable();
+	}
+	
+	private void loadCredentials() {
+		saveDefaultConfig();
+		sqlUser = getConfig().getString("sql_credentials.user");
+		sqlHost = getConfig().getString("sql_credentials.host");
+		sqlDatabase = getConfig().getString("sql_credentials.database");
+		sqlPassowrd = getConfig().getString("sql_credentials.password");
+		sqlPort = getConfig().getInt("sql_credentials.port");
 	}
 	
 	private void loadCommands() {
@@ -73,7 +93,9 @@ public class DeathRun extends JavaPlugin {
 	}
 	
 	private void registerListeners() {
-		getServer().getPluginManager().registerEvents(new PlayerListener(this), plugin);
-		getServer().getPluginManager().registerEvents(new BlockListeners(), plugin);
+		getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+		getServer().getPluginManager().registerEvents(new BlockListeners(), this);
+		getServer().getPluginManager().registerEvents(new EntityTrapListeners(), this);
+		getServer().getPluginManager().registerEvents(new ConnectionListeners(this), this);
 	}
 }

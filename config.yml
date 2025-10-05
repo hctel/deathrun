@@ -1,0 +1,6 @@
+sql_credentials:
+  user: "root"
+  host: "localhost"
+  database: "testdb"
+  password: "1234"
+  port: 3306
