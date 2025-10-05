@@ -99,7 +99,7 @@ public class PlayerListener implements Listener {
 				case "left":
 				{
 					applyLeftStrafe(player);
-					StrafeCooldown strafeCooldown = new StrafeCooldown(player, cooldown, StrafeDirection.LEFT);
+					StrafeCooldown strafeCooldown = new StrafeCooldown(player, cooldown, StrafeDirection.LEFT, plugin);
 					new BukkitRunnable() {
 						@Override
 						public void run() {
@@ -111,7 +111,7 @@ public class PlayerListener implements Listener {
 				case "right":
 				{
 					applyRightStrafe(player);
-					StrafeCooldown strafeCooldown = new StrafeCooldown(player, cooldown, StrafeDirection.RIGHT);
+					StrafeCooldown strafeCooldown = new StrafeCooldown(player, cooldown, StrafeDirection.RIGHT, plugin);
 					new BukkitRunnable() {
 						@Override
 						public void run() {
@@ -122,7 +122,7 @@ public class PlayerListener implements Listener {
 				}
 				case "backwards": {
 					applyBackStrafe(player);
-					StrafeCooldown strafeCooldown = new StrafeCooldown(player, cooldown, StrafeDirection.BACKWARDS);
+					StrafeCooldown strafeCooldown = new StrafeCooldown(player, cooldown, StrafeDirection.BACKWARDS, plugin);
 					new BukkitRunnable() {
 						@Override
 						public void run() {
