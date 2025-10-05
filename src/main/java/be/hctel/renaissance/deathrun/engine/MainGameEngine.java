@@ -2,14 +2,15 @@ package be.hctel.renaissance.deathrun.engine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
+import org.bukkit.util.Vector;
 
 import be.hctel.api.scoreboard.DynamicScoreboard;
 import be.hctel.renaissance.deathrun.DeathRun;
@@ -53,7 +54,11 @@ public class MainGameEngine {
 		this.map = plugin.mapManager.getMap(plugin.getServer().getWorld("world"));
 	}
 	
-	public void startGame(GameMap map) {
+	public void startGame(GameMap map, List<Player> wishDeaths) {
+		
+		if(wishDeaths.size() > 0) {
+			
+		}
 		for(Player P : plugin.getServer().getOnlinePlayers()) {
 			deathCount.put(P, 0);
 			points.put(P, 0);
@@ -72,6 +77,9 @@ public class MainGameEngine {
 			scoreboard.setLine(2, "§7§m--------");
 			scoreboard.setLine(1, "");
 			scoreboards.put(P, scoreboard);
+			Team playerTeam = plugin.getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("Team"+P.getName());
+			playerTeam.setCanSeeFriendlyInvisibles(true);
+			playerTeams.put(P, playerTeam);
 		}
 		eachSecondTask = new BukkitRunnable() {
 			@Override
@@ -100,23 +108,22 @@ public class MainGameEngine {
 		Location toTeleport = respawnLocation.get(player);
 		if(toTeleport == null) toTeleport = plugin.mapManager.getMap(player.getWorld()).getSpawn();
 		player.teleport(toTeleport);
+		player.setVelocity(new Vector(0,0,0));
 		player.playSound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_HURT, 10f, 1f);
 		player.sendTitle("§4§l✖", "You died!", 0, 50, 20);
 	}
 	
 	public void checkpoint(Player player) {
-		Checkpoint cp;
 		if(checkpointIndex.containsKey(player)) {
 			int index = checkpointIndex.get(player);
-			cp = plugin.mapManager.getMap(player.getWorld()).getCheckpoints().get(index);
+			Checkpoint cp = plugin.mapManager.getMap(player.getWorld()).getCheckpoints().get(index);
 			if(respawnLocation.get(player).distanceSquared(player.getLocation()) > 100) {
 				checkpointIndex.put(player, index+1);
 				respawnLocation.put(player, cp.getRespawnLocation());
 				player.sendTitle(cp.getName(), null, 10, 40, 20);
 			}
 		} else {
-			System.out.println("Player put in list");
-			cp = plugin.mapManager.getMap(player.getWorld()).getCheckpoints().get(0);
+			Checkpoint cp = plugin.mapManager.getMap(player.getWorld()).getCheckpoints().get(0);
 			checkpointIndex.put(player, 1);
 			respawnLocation.put(player, cp.getRespawnLocation());
 			player.sendTitle(cp.getName(), null, 10, 40, 20);
@@ -129,6 +136,13 @@ public class MainGameEngine {
 	 * @return the {@link Role} of the player
 	 */
 	public Role getRole(Player player) {
+		if(runners.contains(player)) {
+			return Role.RUNNER;
+		} else if(deaths.contains(player)) {
+			return Role.DEATH;
+		} else if(gameOngoig) {
+			return Role.SPEC;
+		}
 		return Role.TEST;
 	}
 	

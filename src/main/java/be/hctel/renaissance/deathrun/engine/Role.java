@@ -7,6 +7,10 @@ package be.hctel.renaissance.deathrun.engine;
  */
 public enum Role {
 	/**
+	 * Pregame role.
+	 */
+	PREGAME(""),
+	/**
 	 * Default player role.
 	 */
 	RUNNER("§7Runner"),
