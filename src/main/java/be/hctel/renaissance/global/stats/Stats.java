@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
