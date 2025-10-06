@@ -42,3 +42,7 @@ commands:
     usage: /testheads
     permission: dr.admin
     description: test command
+  preshow:
+    usage: /preshow <numer>
+    permission: dr.admin
+    decription: Sets a preshow view

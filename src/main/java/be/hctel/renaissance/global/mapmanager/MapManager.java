@@ -53,6 +53,8 @@ public class MapManager {
 				trapManagers.put(map, trapManager);
 			} else {
 				JSONObject mapJson = mapConfig.getConfig().getJSONObject(W.getName());
+				if(!mapJson.has("name")) mapJson.put("name", W.getName().replace("DR_", "").replace("_", " "));
+				if(!mapJson.has("author")) mapJson.put("author", "Unknown author :/");
 				Location spawnLocation = Utils.jsonToLocation(mapJson.getJSONObject("runnerSpawn"));
 				GameMap map = new GameMap(W, spawnLocation, mapJson);
 				TrapManager trapManager = new TrapManager(this.plugin,map);

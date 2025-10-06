@@ -64,6 +64,14 @@ public class GameMap {
 		return this.worldConfig;
 	}
 	
+	public String getName() {
+		return getConfig().getString("name");
+	}
+	
+	public String getAuthor() {
+		return getConfig().getString("author");
+	}
+	
 	/**
 	 * Returns the ArrayList containing the checkpoints of a Game Map
 	 * @return
@@ -72,6 +80,10 @@ public class GameMap {
 		return this.checkpoints;
 	}
 	
+	/**
+	 * Adds a checkpoint to the Game Map
+	 * @param cp
+	 */
 	public void addCheckpoint(Checkpoint cp) {
 		checkpoints.add(cp);
 		worldConfig.getJSONArray("checkpoints").put(cp.getSaveJson());

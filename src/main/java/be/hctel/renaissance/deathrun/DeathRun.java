@@ -12,6 +12,7 @@ import be.hctel.renaissance.cosmetics.CosmeticsManager;
 import be.hctel.renaissance.deathrun.commands.StaffCommands;
 import be.hctel.renaissance.deathrun.commands.TestTrapCommand;
 import be.hctel.renaissance.deathrun.commands.TrapCommands;
+import be.hctel.renaissance.deathrun.commands.completers.StaffCommandCompleter;
 import be.hctel.renaissance.deathrun.commands.completers.TrapCommandCompleter;
 import be.hctel.renaissance.deathrun.data.DRStats;
 import be.hctel.renaissance.deathrun.engine.MainGameEngine;
@@ -24,7 +25,7 @@ import be.hctel.renaissance.global.storage.SQLConnector;
 
 public class DeathRun extends JavaPlugin {
 	
-	public String header = "§8▍ §§4Death§cRun§8 ▏ ";
+	public String header = "§8▍ §4Death§cRun§8 ▏ ";
 	
 	public Plugin plugin;
 	
@@ -84,15 +85,18 @@ public class DeathRun extends JavaPlugin {
 		StaffCommands staffCommands = new StaffCommands(this);
 		TrapCommands trapCommands = new TrapCommands(this);
 		TrapCommandCompleter trapCompleter = new TrapCommandCompleter();
+		StaffCommandCompleter staffCompleter = new StaffCommandCompleter();
 		getCommand("testtrap").setExecutor(new TestTrapCommand(this));
 		getCommand("gm").setExecutor(staffCommands);
 		getCommand("dms").setExecutor(staffCommands);
+		getCommand("dms").setTabCompleter(staffCompleter);
 		getCommand("cpd").setExecutor(staffCommands);
 		getCommand("traptool").setExecutor(trapCommands);
 		getCommand("traptool").setTabCompleter(trapCompleter);
 		getCommand("savetrap").setExecutor(trapCommands);
 		getCommand("trapmanager").setExecutor(trapCommands);
 		getCommand("testheads").setExecutor(staffCommands);
+		getCommand("preshow").setExecutor(staffCommands);
 	}
 	
 	private void registerListeners() {
