@@ -1,5 +1,7 @@
 package be.hctel.renaissance.deathrun.listeners;
 
+import java.util.HashMap;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -24,6 +26,7 @@ import be.hctel.renaissance.deathrun.misc.StrafeDirection;
 public class PlayerListener implements Listener {
 	
 	DeathRun plugin;
+	private HashMap<Player, Long> lastPad = new HashMap<>();
 	
 	public PlayerListener(DeathRun plugin) {
 		this.plugin = plugin;
@@ -33,6 +36,8 @@ public class PlayerListener implements Listener {
 	public void onMove(PlayerMoveEvent e) {
 		switch(e.getTo().clone().add(0,-1,0).getBlock().getType()) {	
 		case EMERALD_BLOCK: {
+			if(System.currentTimeMillis() - (lastPad.containsKey(e.getPlayer()) ? lastPad.get(e.getPlayer()) : 0) < 500) break;
+			lastPad.put(e.getPlayer(), System.currentTimeMillis());
 			Location location = e.getTo().clone().subtract(0, 1, 0);
 			for(int x = -1; x < 2; x++) {
 				for(int y = -1; y < 2; y++) {
@@ -43,6 +48,7 @@ public class PlayerListener implements Listener {
 							int strenght = Integer.parseInt(sign.getLine(0));
 							int duration = Integer.parseInt(sign.getLine(1));
 							e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, duration*20, strenght, false, false));
+							e.getPlayer().sendMessage(plugin.header + String.format("§a§l+ §6§lJump %d §7[%d Seconds]", strenght, duration));
 						}
 					}
 				}
@@ -50,6 +56,8 @@ public class PlayerListener implements Listener {
 			break;
 		}
 		case REDSTONE_BLOCK: {
+			if(System.currentTimeMillis() - (lastPad.containsKey(e.getPlayer()) ? lastPad.get(e.getPlayer()) : 0) < 500) break;
+			lastPad.put(e.getPlayer(), System.currentTimeMillis());
 			Location location = e.getTo().clone().subtract(0, 1, 0);
 			for(int x = -1; x < 2; x++) {
 				for(int y = -1; y < 2; y++) {
@@ -60,6 +68,7 @@ public class PlayerListener implements Listener {
 							int strenght = Integer.parseInt(sign.getLine(0));
 							int duration = Integer.parseInt(sign.getLine(1));
 							e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration*20, strenght, false, false));
+							e.getPlayer().sendMessage(plugin.header + String.format("§a§l+ §6§lSpeed %d §7[%d Seconds]", strenght, duration));
 						}
 					}
 				}
