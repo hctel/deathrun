@@ -24,9 +24,9 @@ public class StaffCommandCompleter implements TabCompleter{
 				}
 				return out;
 			}
-			else if(args.length == 2) {
+			if(args.length == 2) {
 				for(Material M : Material.values()) {
-					if(M.toString().startsWith(args[0].toUpperCase())) {
+					if(M.toString().startsWith(args[1].toUpperCase())) {
 						out.add(M.toString());
 					}
 				}
