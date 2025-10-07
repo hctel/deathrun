@@ -97,6 +97,7 @@ public class DeathRun extends JavaPlugin {
 		getCommand("trapmanager").setExecutor(trapCommands);
 		getCommand("testheads").setExecutor(staffCommands);
 		getCommand("preshow").setExecutor(staffCommands);
+		getCommand("testspawn").setExecutor(staffCommands);
 	}
 	
 	private void registerListeners() {

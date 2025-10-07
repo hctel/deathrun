@@ -1,5 +1,7 @@
 package be.hctel.renaissance.deathrun.commands;
 
+import java.util.ArrayList;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -55,7 +57,7 @@ public class StaffCommands implements CommandExecutor {
 							JSONObject mapConfig = plugin.mapManager.getMapConfig(player.getWorld());
 							try {
 								Material mat = Material.valueOf(args[1].toUpperCase());
-								mapConfig.put("spawnMaterial", mat);
+								mapConfig.put("spawnMaterial", mat.toString());
 							} catch (IllegalArgumentException e) {
 								player.sendMessage("§cPlease enter a valid material!");
 								return true;
@@ -127,6 +129,30 @@ public class StaffCommands implements CommandExecutor {
 				preshow.put(number, location);
 				mapJson.put("preshow", preshow);
 				return true;		
+			}
+			if(command.getName().equalsIgnoreCase("testspawn")) {
+				int spawnRadius = 7;
+				GameMap map = plugin.mapManager.getMap(player.getWorld());
+				if(!map.getConfig().has("spawnMaterial")) return true;
+				ArrayList<Location> spawnLocs = new ArrayList<>();
+				for(int x = -spawnRadius; x <= spawnRadius; x++) {
+					for(int z = -spawnRadius; z <= spawnRadius; z++) {
+						for(int y = -1; y < 2; y++) {
+							Location l = Utils.jsonToLocation(map.getConfig().getJSONObject("runnerSpawn")).add(x,y,z);
+							if(map.getConfig().getString("spawnMaterial").endsWith("_STAINED_GLASS") && l.getBlock().getType().toString().endsWith("_STAINED_GLASS")) {
+								spawnLocs.add(l);
+							}
+							else if(map.getConfig().getString("spawnMaterial").endsWith("_TERRACOTTA") && l.getBlock().getType().toString().endsWith("_TERRACOTTA")) {
+								spawnLocs.add(l);
+							}
+							else if(l.getBlock().getType() == Material.valueOf(map.getConfig().getString("spawnMaterial"))) {
+								spawnLocs.add(l);
+							}
+						}
+					}
+				}
+				player.sendMessage(plugin.header + (spawnLocs.size() == 20 ? "§aSize is OK" : "§cSize not matching 20 players: §4" + spawnLocs.size()));
+				return true;
 			}
 		}
 		return false;

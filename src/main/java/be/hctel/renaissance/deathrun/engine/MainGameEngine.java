@@ -6,13 +6,16 @@ import java.util.List;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.joml.Random;
+import org.json.JSONObject;
 
+import be.hctel.api.Utils;
 import be.hctel.api.scoreboard.DynamicScoreboard;
 import be.hctel.renaissance.deathrun.DeathRun;
 import be.hctel.renaissance.deathrun.misc.Checkpoint;
@@ -26,6 +29,7 @@ import be.hctel.renaissance.global.mapmanager.GameMap;
  *
  */
 public class MainGameEngine {
+	private int spawnRadius = 7;
 	
 	private DeathRun plugin;
 	
@@ -43,6 +47,7 @@ public class MainGameEngine {
 	private HashMap<Player, Location> respawnLocation = new HashMap<>();
 	private HashMap<Player, Integer> deathCount = new HashMap<>();
 	private HashMap<Player, Integer> points = new HashMap<>();
+	private HashMap<Player, Integer> tokens = new HashMap<>();
 	private HashMap<Player, DynamicScoreboard> scoreboards = new HashMap<>();
 	private HashMap<Player, Team> playerTeams = new HashMap<>();
 	
@@ -78,6 +83,7 @@ public class MainGameEngine {
 		for(Player P : plugin.getServer().getOnlinePlayers()) {
 			deathCount.put(P, 0);
 			points.put(P, 0);
+			tokens.put(P, 0);
 			DynamicScoreboard scoreboard = new DynamicScoreboard(P.getName()+"_DR_INGAME", "§c§lDeathRun", plugin.scoreboardManager);
 			scoreboard.setLine(14, "");
 			scoreboard.setLine(13, "§e§lGame Info");
@@ -96,15 +102,43 @@ public class MainGameEngine {
 			Team playerTeam = plugin.getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("Team"+P.getName());
 			playerTeam.setCanSeeFriendlyInvisibles(true);
 			playerTeams.put(P, playerTeam);
+			P.sendTitle("§b§l" + map.getName(), "§3By " + map.getAuthor(), 10, 70, 20);
+		}
+		ArrayList<Location> preshow = new ArrayList<>();
+		if(map.getConfig().has("preshow")) {
+			for(Object O : map.getConfig().getJSONArray("preshow")) {
+				if(O instanceof JSONObject) {
+					preshow.add(Utils.jsonToLocation((JSONObject) O));
+				}
+			}
+			
 		}
 		eachSecondTask = new BukkitRunnable() {
 			@Override
 			public void run() {
 				for(Player P : plugin.getServer().getOnlinePlayers()) {
 					if(getRole(P) == Role.RUNNER || getRole(P) == Role.DEATH) {
+						if(timer > 317) {
+							if(preshow.size() > 0) P.teleport(preshow.get(0));
+							//else teleport to spawn
+						} else if(timer <= 317 && timer > 313) {
+							if(preshow.size() > 1) P.teleport(preshow.get(1));
+						} else if(timer <= 313 && timer > 310) {
+							if(preshow.size() > 2) P.teleport(preshow.get(2));
+						}
+						
+						if(timer > 300) {
+							
+						}
 						if(timer == 300) {
 							scoreboards.get(P).addReceiver(P);
 							P.sendTitle("§c§l < RUN! >", "§3The game has BEGUN!", 10, 70, 20);
+						}
+						if(timer > 0 && timer < 300) {
+							DynamicScoreboard sc = scoreboards.get(P);
+							sc.setLine(12, "§7Time: §r" + Utils.formatSeconds(timer));
+							sc.setLine(5, "§7Points: §r" + points.get(P));
+							sc.setLine(4, "§7Deaths: §r" + points.get(P));							
 						}
 					}
 				}
@@ -112,6 +146,30 @@ public class MainGameEngine {
 			}
 		};
 		eachSecondTask.runTaskTimer(plugin, 0L, 20L);
+	}
+	
+	private void teleportToSpawn() {
+		ArrayList<Location> spawnLocs = new ArrayList<>();
+		for(int x = -spawnRadius; x <= spawnRadius; x++) {
+			for(int z = -spawnRadius; z <= spawnRadius; z++) {
+				for(int y = -1; y < 2; y++) {
+					Location l = Utils.jsonToLocation(map.getConfig().getJSONObject("runnerSpawn")).add(x,y,z);
+					if(map.getConfig().getString("spawnMaterial").endsWith("_STAINED_GLASS") && l.getBlock().getType().toString().endsWith("_STAINED_GLASS")) {
+						spawnLocs.add(l.add(0, 1, 0));
+					}
+					else if(map.getConfig().getString("spawnMaterial").endsWith("_TERRACOTTA") && l.getBlock().getType().toString().endsWith("_TERRACOTTA")) {
+						spawnLocs.add(l.add(0, 1, 0));
+					}
+					else if(l.getBlock().getType() == Material.valueOf(map.getConfig().getString("spawnMaterial"))) {
+						spawnLocs.add(l.add(0, 1, 0));
+					}
+				}
+			}
+		}
+		System.out.println(spawnLocs.size());
+		for(int i = 0; i < runners.size(); i++) {
+			runners.get(i).teleport(spawnLocs.get(i));
+		}
 	}
 	
 	/**
@@ -122,7 +180,7 @@ public class MainGameEngine {
 	public void killPlayer(Player player) {
 		if(player.getGameMode() == GameMode.CREATIVE) return;
 		Location toTeleport = respawnLocation.get(player);
-		if(toTeleport == null) toTeleport = plugin.mapManager.getMap(player.getWorld()).getSpawn();
+		if(toTeleport == null) toTeleport = map.getSpawn();
 		player.teleport(toTeleport);
 		player.setVelocity(new Vector(0,0,0));
 		player.playSound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_HURT, 10f, 1f);
@@ -132,14 +190,14 @@ public class MainGameEngine {
 	public void checkpoint(Player player) {
 		if(checkpointIndex.containsKey(player)) {
 			int index = checkpointIndex.get(player);
-			Checkpoint cp = plugin.mapManager.getMap(player.getWorld()).getCheckpoints().get(index);
+			Checkpoint cp = map.getCheckpoints().get(index);
 			if(respawnLocation.get(player).distanceSquared(player.getLocation()) > 100) {
 				checkpointIndex.put(player, index+1);
 				respawnLocation.put(player, cp.getRespawnLocation());
 				player.sendTitle(cp.getName(), null, 10, 40, 20);
 			}
 		} else {
-			Checkpoint cp = plugin.mapManager.getMap(player.getWorld()).getCheckpoints().get(0);
+			Checkpoint cp = map.getCheckpoints().get(0);
 			checkpointIndex.put(player, 1);
 			respawnLocation.put(player, cp.getRespawnLocation());
 			player.sendTitle(cp.getName(), null, 10, 40, 20);

@@ -46,3 +46,7 @@ commands:
     usage: /preshow <numer>
     permission: dr.admin
     decription: Sets a preshow view
+  testspawn:
+    usage: /testspawn
+    permission: dr.admin
+    description: Allows to check if the spawn region is correct
