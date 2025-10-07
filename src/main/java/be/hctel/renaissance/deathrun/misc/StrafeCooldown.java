@@ -19,6 +19,7 @@ public class StrafeCooldown {
 	}
 	
 	public boolean step() {
+		if(counter == 0) player.sendMessage(plugin.header + "§aStrafe available");
 		switch(direction) {
 		case BACKWARDS:
 			if(counter > 0) {
