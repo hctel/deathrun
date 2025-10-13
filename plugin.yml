@@ -58,3 +58,7 @@ commands:
     usage: /ssw
     permission: dr.admin
     description: Saves a spawn wall
+  tsw:
+    usage: /tsw
+    permission: dr.admin
+    description: start wall test

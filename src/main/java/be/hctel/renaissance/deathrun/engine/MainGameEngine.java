@@ -8,6 +8,8 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
@@ -39,6 +41,8 @@ public class MainGameEngine {
 	
 	private int timer = 320;
 	private boolean gameOngoig = false;
+	
+	private ArrayList<BlockState> changedStartBlocks = new ArrayList<BlockState>();
 	
 	private ArrayList<Player> runners = new ArrayList<>();
 	private ArrayList<Player> deaths = new ArrayList<>();
@@ -120,25 +124,50 @@ public class MainGameEngine {
 					if(getRole(P) == Role.RUNNER || getRole(P) == Role.DEATH) {
 						if(timer > 317) {
 							if(preshow.size() > 0) P.teleport(preshow.get(0));
-							//else teleport to spawn
+							else teleportToSpawn();
+							if(timer == 319) P.sendTitle("§b§b" + map.getName(), "§3By " + map.getAuthor(), 10,70,20);
 						} else if(timer <= 317 && timer > 313) {
 							if(preshow.size() > 1) P.teleport(preshow.get(1));
 						} else if(timer <= 313 && timer > 310) {
 							if(preshow.size() > 2) P.teleport(preshow.get(2));
 						}
-						
-						if(timer > 300) {
-							
+						if(timer == 310 && preshow.size() > 0) {
+							teleportToSpawn();
+						}
+						if(timer == 308) {
+							P.sendTitle("§ePrepare to run!", null, 10,70,20);						
+						}
+						if(timer == 305) {
+							P.sendTitle("§c§l\u278e", "§7untill start", 0,20,0);
+						}
+						if(timer == 304) {
+							P.sendTitle("§c§l\u278d", "§7untill start", 0,20,0);
+						}
+						if(timer == 303) {
+							P.sendTitle("§6§l\u278c", "§7untill start", 0,20,0);
+							P.playSound(P, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0.5f);
+						}
+						if(timer == 302) {
+							P.sendTitle("§6§l\u278b", "§7untill start", 0,20,0);
+							P.playSound(P, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0.75f);
+						}
+						if(timer == 301) {
+							P.sendTitle("§e§l\u278a", "§7untill start", 0,20,0);
+							P.playSound(P, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 						}
 						if(timer == 300) {
+							destroyStartWall();
 							scoreboards.get(P).addReceiver(P);
-							P.sendTitle("§c§l < RUN! >", "§3The game has BEGUN!", 10, 70, 20);
+							P.sendTitle("§c§l < RUN! >", "§3The game has BEGUN!", 0, 70, 20);
 						}
 						if(timer > 0 && timer < 300) {
 							DynamicScoreboard sc = scoreboards.get(P);
 							sc.setLine(12, "§7Time: §r" + Utils.formatSeconds(timer));
 							sc.setLine(5, "§7Points: §r" + points.get(P));
 							sc.setLine(4, "§7Deaths: §r" + points.get(P));							
+						}
+						if(timer == 0) {
+							endGame();
 						}
 					}
 				}
@@ -169,6 +198,45 @@ public class MainGameEngine {
 		System.out.println(spawnLocs.size());
 		for(int i = 0; i < runners.size(); i++) {
 			runners.get(i).teleport(spawnLocs.get(i));
+		}
+		Location deathLoc = Utils.jsonToLocation(map.getConfig().getJSONObject("deathSpawn"));
+		for(Player P : deaths) {
+			P.teleport(deathLoc);
+		}
+	}
+	
+	private void destroyStartWall() {
+		Location loc1 = Utils.jsonToLocation(map.getConfig().getJSONArray("spawnWall").getJSONObject(0));
+		Location loc2 = Utils.jsonToLocation(map.getConfig().getJSONArray("spawnWall").getJSONObject(1));
+		Location workLoc = loc1.clone();
+		Vector totalBlocks = loc2.clone().subtract(loc1).toVector();
+		
+		Vector xInc = new Vector(Math.signum(totalBlocks.getBlockX()), 0, 0);
+		Vector yInc = new Vector(0, Math.signum(totalBlocks.getBlockY()), 0);
+		Vector zInc = new Vector(0, 0, Math.signum(totalBlocks.getBlockZ()));
+	
+		for(int x = 0; x < Math.abs(totalBlocks.getBlockX())+1; x++) {
+			Location workLocD = workLoc.clone();
+			for(int y = 0; y < Math.abs(totalBlocks.getBlockY())+1; y++) {
+				Location workLocDD = workLocD.clone();
+				for(int z = 0; z < Math.abs(totalBlocks.getBlockZ())+1; z++) {
+					Block b = workLocDD.getBlock();
+					if(b.getType().toString().endsWith("_STAINED_GLASS") || b.getType() == Material.IRON_BARS) {
+						changedStartBlocks.add(b.getState());
+						Utils.transformToFallingBlock(b);
+					}
+					workLocDD.add(zInc);
+				}
+				workLocD.add(yInc);
+			}
+			workLoc.add(xInc);
+		}
+	}
+	
+	private void endGame() {
+		eachSecondTask.cancel();
+		for(BlockState S : changedStartBlocks) {
+			S.update(true);
 		}
 	}
 	

@@ -8,10 +8,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mvplugins.multiverse.core.world.LoadedMultiverseWorld;
@@ -50,8 +54,8 @@ public class StaffCommands implements CommandExecutor {
 				}
 			}
 			if(command.getName().equalsIgnoreCase("dms")) {
-				if(args.length > 1) {
-					if(args[0].equals("death")) {
+				if(args.length > 0) {
+					if(args[0].equalsIgnoreCase("death")) {
 						JSONObject mapConfig = plugin.mapManager.getMapConfig(player.getWorld());
 						mapConfig.put(args[0] + "Spawn", Utils.locationToJson(player.getLocation()));
 						//if(args[0].equalsIgnoreCase("runner")) ((LoadedMultiverseWorld) plugin.worldManager.getWorld(player.getWorld()).get()).setSpawnLocation(player.getLocation());
@@ -181,6 +185,44 @@ public class StaffCommands implements CommandExecutor {
 					}
 				}
 				return true;
+			}
+			if(command.getName().equalsIgnoreCase("tsw")) {
+				ArrayList<BlockState> changedStartBlocks = new ArrayList<>();
+				GameMap map = plugin.mapManager.getMap(player.getWorld());
+				Location loc1 = Utils.jsonToLocation(map.getConfig().getJSONArray("spawnWall").getJSONObject(0));
+				Location loc2 = Utils.jsonToLocation(map.getConfig().getJSONArray("spawnWall").getJSONObject(1));
+				Location workLoc = loc1.clone();
+				Vector totalBlocks = loc2.clone().subtract(loc1).toVector();
+				
+				Vector xInc = new Vector(Math.signum(totalBlocks.getBlockX()), 0, 0);
+				Vector yInc = new Vector(0, Math.signum(totalBlocks.getBlockY()), 0);
+				Vector zInc = new Vector(0, 0, Math.signum(totalBlocks.getBlockZ()));
+			
+				for(int x = 0; x < Math.abs(totalBlocks.getBlockX())+1; x++) {
+					Location workLocD = workLoc.clone();
+					for(int y = 0; y < Math.abs(totalBlocks.getBlockY())+1; y++) {
+						Location workLocDD = workLocD.clone();
+						for(int z = 0; z < Math.abs(totalBlocks.getBlockZ())+1; z++) {
+							Block b = workLocDD.getBlock();
+							if(b.getType().toString().endsWith("_STAINED_GLASS") || b.getType() == Material.IRON_BARS) {
+								changedStartBlocks.add(b.getState());
+								Utils.transformToFallingBlock(b);
+							}
+							workLocDD.add(zInc);
+						}
+						workLocD.add(yInc);
+					}
+					workLoc.add(xInc);
+				}
+				new BukkitRunnable() {
+					
+					@Override
+					public void run() {
+						for(BlockState S : changedStartBlocks) {
+							S.update(true);
+						}
+					}
+				}.runTaskLater(plugin, 60L);
 			}
 		}
 		return false;

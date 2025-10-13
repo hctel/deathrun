@@ -100,6 +100,7 @@ public class DeathRun extends JavaPlugin {
 		getCommand("testspawn").setExecutor(staffCommands);
 		getCommand("swt").setExecutor(staffCommands);
 		getCommand("ssw").setExecutor(staffCommands);
+		getCommand("tsw").setExecutor(staffCommands);
 	}
 	
 	private void registerListeners() {
