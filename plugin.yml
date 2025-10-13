@@ -50,3 +50,11 @@ commands:
     usage: /testspawn
     permission: dr.admin
     description: Allows to check if the spawn region is correct
+  swt:
+    usage: /swt
+    permission: dr.admin
+    description: Starts a spawn wall tool
+  ssw:
+    usage: /ssw
+    permission: dr.admin
+    description: Saves a spawn wall

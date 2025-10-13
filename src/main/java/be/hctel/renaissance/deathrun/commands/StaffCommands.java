@@ -1,6 +1,8 @@
 package be.hctel.renaissance.deathrun.commands;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -17,11 +19,13 @@ import org.mvplugins.multiverse.core.world.LoadedMultiverseWorld;
 import be.hctel.api.Utils;
 import be.hctel.renaissance.deathrun.DeathRun;
 import be.hctel.renaissance.deathrun.misc.Checkpoint;
+import be.hctel.renaissance.deathrun.misc.SpawnWallTool;
 import be.hctel.renaissance.global.mapmanager.GameMap;
 
 public class StaffCommands implements CommandExecutor {
 	
 	DeathRun plugin;
+	HashMap<Player, SpawnWallTool> swTools = new HashMap<>();
 	
 	public StaffCommands(DeathRun plugin) {
 		this.plugin = plugin;
@@ -152,6 +156,30 @@ public class StaffCommands implements CommandExecutor {
 					}
 				}
 				player.sendMessage(plugin.header + (spawnLocs.size() == 20 ? "§aSize is OK" : "§cSize not matching 20 players: §4" + spawnLocs.size()));
+				return true;
+			}
+			if(command.getName().equalsIgnoreCase("swt")) {
+				if(swTools.containsKey(player)) swTools.get(player).getLocations();
+				swTools.put(player, new SpawnWallTool(plugin, player));
+				return true;
+			}
+			if(command.getName().equalsIgnoreCase("ssw")) {
+				if(!swTools.containsKey(player)) {
+					player.sendMessage(plugin.header + "§cPlease start a spawn wall tool first.");
+				} else {
+					try {
+						List<Location> locs	= swTools.get(player).getLocations();
+						JSONObject config = plugin.mapManager.getMap(player.getWorld()).getConfig();
+						JSONArray arr = new JSONArray();
+						for(Location L : locs) {
+							arr.put(Utils.locationToJson(L));
+						}
+						config.put("spawnWall", arr);
+						swTools.remove(player);
+					} catch (NullPointerException e) {
+						player.sendMessage(plugin.header + "§cPlease make a complete selection first.");
+					}
+				}
 				return true;
 			}
 		}
