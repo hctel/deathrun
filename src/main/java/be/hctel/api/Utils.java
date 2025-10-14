@@ -400,6 +400,13 @@ public class Utils {
 	    return MM + ":" + SS;
 	} 
 	
+	public static String formatMilliseconds(long millis) {
+		long minutes = (millis / 1000) / 60;
+		long seconds = (millis / 1000) % 60;
+		long ms = millis % 1000;
+		return String.format("%02d:%02d.%03d", minutes, seconds, ms);
+	}
+	
 	public static Location substractLocation(Location a, Location b) {
 		if(!a.getWorld().equals(b.getWorld())) throw new IllegalArgumentException("The two locations are not in the same world!");
 		double x = a.getX() - b.getX();
@@ -613,4 +620,16 @@ public class Utils {
 	  public static ItemStack skullBuilder(String skinURL) {
 		  return skullBuilder(skinURL, "Custom Head");
 	  }
+	  public static String ordinal(int i) {
+		    String[] suffixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
+		    switch (i % 100) {
+		    case 11:
+		    case 12:
+		    case 13:
+		        return i + "th";
+		    default:
+		        return i + suffixes[i % 10];
+
+		    }
+		}
 }

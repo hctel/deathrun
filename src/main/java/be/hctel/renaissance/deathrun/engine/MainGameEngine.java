@@ -11,6 +11,8 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
@@ -31,6 +33,8 @@ import be.hctel.renaissance.global.mapmanager.GameMap;
  *
  */
 public class MainGameEngine {
+	private static PotionEffect endPotionEffect = new PotionEffect(PotionEffectType.BLINDNESS, 40, 1, true, false);
+	
 	private int spawnRadius = 7;
 	
 	private DeathRun plugin;
@@ -41,6 +45,7 @@ public class MainGameEngine {
 	
 	private int timer = 320;
 	private boolean gameOngoig = false;
+	private long gameStartEpoch;
 	
 	private ArrayList<BlockState> changedStartBlocks = new ArrayList<BlockState>();
 	
@@ -54,6 +59,7 @@ public class MainGameEngine {
 	private HashMap<Player, Integer> tokens = new HashMap<>();
 	private HashMap<Player, DynamicScoreboard> scoreboards = new HashMap<>();
 	private HashMap<Player, Team> playerTeams = new HashMap<>();
+	private HashMap<Player, Long> finishTime = new HashMap<>();
 	
 	/**
 	 * Game Engine constructor
@@ -131,9 +137,6 @@ public class MainGameEngine {
 						} else if(timer <= 313 && timer > 310) {
 							if(preshow.size() > 2) P.teleport(preshow.get(2));
 						}
-						if(timer == 310 && preshow.size() > 0) {
-							teleportToSpawn();
-						}
 						if(timer == 308) {
 							P.sendTitle("§ePrepare to run!", null, 10,70,20);						
 						}
@@ -156,9 +159,22 @@ public class MainGameEngine {
 							P.playSound(P, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 						}
 						if(timer == 300) {
-							destroyStartWall();
+							gameStartEpoch = System.currentTimeMillis();
 							scoreboards.get(P).addReceiver(P);
 							P.sendTitle("§c§l < RUN! >", "§3The game has BEGUN!", 0, 70, 20);
+						}
+						if(timer == 60) {
+							P.sendMessage(plugin.header + "§aGame ends in 60 seconds!");
+						}
+						if(timer == 30) {
+							P.sendMessage(plugin.header + "§cGame ends in 30 seconds!");
+						}
+						if(timer == 10) {
+							P.sendTitle("", "§c10 seconds left!", 10, 35, 20);
+						}
+						if(timer < 4 && timer > 0) {
+							P.playSound(P.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1.0f, 1.0f);
+							P.sendMessage(plugin.header + "§eEnding in §f" + timer);
 						}
 						if(timer > 0 && timer < 300) {
 							DynamicScoreboard sc = scoreboards.get(P);
@@ -166,10 +182,16 @@ public class MainGameEngine {
 							sc.setLine(5, "§7Points: §r" + points.get(P));
 							sc.setLine(4, "§7Deaths: §r" + points.get(P));							
 						}
-						if(timer == 0) {
-							endGame();
-						}
 					}
+				}
+				if(timer == 310 && preshow.size() > 0) {
+					teleportToSpawn();
+				}
+				if(timer == 300) {
+					destroyStartWall();
+				}
+				if(timer == 0) {
+					endGame();
 				}
 				timer--;
 			}
@@ -255,11 +277,33 @@ public class MainGameEngine {
 		player.sendTitle("§4§l✖", "You died!", 0, 50, 20);
 	}
 	
+	public void finishGame(Player player) {
+		if(finishTime.containsKey(player)) return;
+		long runTime = System.currentTimeMillis() - gameStartEpoch;
+		finishTime.put(player, runTime);
+		if(finishTime.size() == 1) {
+			for(Player P : plugin.getServer().getOnlinePlayers()) {
+				if(!P.equals(player)) P.sendTitle("", "§eA player finished, game ends in 90 seconds!", 10, 70, 20);
+			}
+			timer = 90;
+		}
+		player.sendTitle("", "§cYou are now spectating!", 10, 70, 20);
+		player.addPotionEffect(endPotionEffect);
+		plugin.getServer().broadcastMessage(String.format("%s%s%s §3finished §b%s§3. §7(%s)", plugin.header, plugin.ranks.getRankColor(player), player.getName(), Utils.ordinal(finishTime.size()), Utils.formatMilliseconds(runTime)));
+		player.sendMessage(plugin.header + "§bYou finished your run in " + Utils.formatMilliseconds(runTime) + "!");
+		player.teleport(map.getSpawn());
+	}
+	
 	public void checkpoint(Player player) {
+		if(!gameOngoig) map = plugin.mapManager.getMap(player.getWorld());
 		if(checkpointIndex.containsKey(player)) {
 			int index = checkpointIndex.get(player);
+			if(index == map.getCheckpoints().size()) {
+				finishGame(player);
+				return;
+			}
 			Checkpoint cp = map.getCheckpoints().get(index);
-			if(respawnLocation.get(player).distanceSquared(player.getLocation()) > 100) {
+			if(respawnLocation.get(player).distanceSquared(player.getLocation()) > 75) {
 				checkpointIndex.put(player, index+1);
 				respawnLocation.put(player, cp.getRespawnLocation());
 				player.sendTitle(cp.getName(), null, 10, 40, 20);
