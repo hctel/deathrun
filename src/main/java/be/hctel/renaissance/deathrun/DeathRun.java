@@ -1,7 +1,6 @@
 package be.hctel.renaissance.deathrun;
 
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.mvplugins.multiverse.core.MultiverseCore;
@@ -12,6 +11,7 @@ import be.hctel.renaissance.cosmetics.CosmeticsManager;
 import be.hctel.renaissance.deathrun.commands.StaffCommands;
 import be.hctel.renaissance.deathrun.commands.TestTrapCommand;
 import be.hctel.renaissance.deathrun.commands.TrapCommands;
+import be.hctel.renaissance.deathrun.commands.VoteCommand;
 import be.hctel.renaissance.deathrun.commands.completers.StaffCommandCompleter;
 import be.hctel.renaissance.deathrun.commands.completers.TrapCommandCompleter;
 import be.hctel.renaissance.deathrun.data.DRStats;
@@ -21,17 +21,21 @@ import be.hctel.renaissance.deathrun.listeners.ConnectionListeners;
 import be.hctel.renaissance.deathrun.listeners.EntityTrapListeners;
 import be.hctel.renaissance.deathrun.listeners.PlayerListener;
 import be.hctel.renaissance.global.mapmanager.MapManager;
+import be.hctel.renaissance.global.mapmanager.VotesHandler;
 import be.hctel.renaissance.global.storage.SQLConnector;
+import be.hctel.renaissance.ranks.RankManager;
 
 public class DeathRun extends JavaPlugin {
 	
 	public String header = "§8▍ §4Death§cRun§8 ▏ ";
 	
-	public Plugin plugin;
+	public DeathRun plugin;
 	
 	private SQLConnector connector;
 	public DRStats stats;
 	public CosmeticsManager cosmetics;
+	public RankManager ranks;
+	public VotesHandler votesHandler;
 	
 	public MultiverseCore core;
 	public MultiverseCoreApi mvAPI;
@@ -52,14 +56,16 @@ public class DeathRun extends JavaPlugin {
 		
 		loadCredentials();
 		connector = new SQLConnector(sqlUser, sqlHost, sqlPort, sqlDatabase, sqlPassowrd);
-		stats = new DRStats(this, connector);
+		stats = new DRStats(plugin, connector);
 		cosmetics = new CosmeticsManager(connector, plugin);
+		ranks = new RankManager(connector, plugin);
+		votesHandler = new VotesHandler(plugin);
 		
 		core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
 		mvAPI = core.getApi();
 		worldManager = mvAPI.getWorldManager();
-		mapManager = new MapManager(this);
-		mainGameEngine = new MainGameEngine(this);
+		mapManager = new MapManager(plugin);
+		mainGameEngine = new MainGameEngine(plugin);
 		scoreboardManager = getServer().getScoreboardManager();
 		
 		loadCommands();
@@ -82,11 +88,12 @@ public class DeathRun extends JavaPlugin {
 	}
 	
 	private void loadCommands() {
-		StaffCommands staffCommands = new StaffCommands(this);
-		TrapCommands trapCommands = new TrapCommands(this);
+		StaffCommands staffCommands = new StaffCommands(plugin);
+		TrapCommands trapCommands = new TrapCommands(plugin);
 		TrapCommandCompleter trapCompleter = new TrapCommandCompleter();
 		StaffCommandCompleter staffCompleter = new StaffCommandCompleter();
-		getCommand("testtrap").setExecutor(new TestTrapCommand(this));
+		VoteCommand voteCommand = new VoteCommand(plugin);
+		getCommand("testtrap").setExecutor(new TestTrapCommand(plugin));
 		getCommand("gm").setExecutor(staffCommands);
 		getCommand("dms").setExecutor(staffCommands);
 		getCommand("dms").setTabCompleter(staffCompleter);
@@ -101,12 +108,14 @@ public class DeathRun extends JavaPlugin {
 		getCommand("swt").setExecutor(staffCommands);
 		getCommand("ssw").setExecutor(staffCommands);
 		getCommand("tsw").setExecutor(staffCommands);
+		getCommand("vote").setExecutor(voteCommand);
+		
 	}
 	
 	private void registerListeners() {
-		getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-		getServer().getPluginManager().registerEvents(new BlockListeners(), this);
-		getServer().getPluginManager().registerEvents(new EntityTrapListeners(), this);
-		getServer().getPluginManager().registerEvents(new ConnectionListeners(this), this);
+		getServer().getPluginManager().registerEvents(new PlayerListener(plugin), plugin);
+		getServer().getPluginManager().registerEvents(new BlockListeners(), plugin);
+		getServer().getPluginManager().registerEvents(new EntityTrapListeners(), plugin);
+		getServer().getPluginManager().registerEvents(new ConnectionListeners(plugin), plugin);
 	}
 }

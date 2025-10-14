@@ -1,0 +1,110 @@
+package be.hctel.renaissance.ranks;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
+
+import be.hctel.api.Utils;
+import be.hctel.renaissance.deathrun.DeathRun;
+import be.hctel.renaissance.global.storage.SQLConnector;
+import be.hctel.renaissance.text.ChatMessages;
+
+/*
+ * This file is a part of the Renaissance Project API
+ */
+
+public class RankManager {
+	SQLConnector con;
+	HashMap<String, Ranks> cache = new HashMap<String, Ranks>();
+	HashMap<String, Integer> hideCache = new HashMap<String, Integer >(); 
+	HashMap<Ranks, Team> teams = new HashMap<Ranks, Team>();
+	String[] n = {"o", "n", "m", "l", "k", "j", "i", "h", "g", "f", "e", "d", "c", "b", "a"};
+	DeathRun plugin;
+	public RankManager(SQLConnector con, DeathRun plugin) {
+		this.con = con;
+		this.plugin = plugin;
+		for(Ranks R : Ranks.values()) {
+			Team team = Bukkit.getScoreboardManager().getNewScoreboard().registerNewTeam(n[R.getIndex()-1]);
+			team.setColor(R.getColor());
+			teams.put(R, team);
+		}
+	}
+
+	/**
+	 * Loads the rank of a player
+	 * @param player
+	 */
+	public void load(Player player) { 
+		if(!(cache.containsKey(Utils.getUUID(player)))) {
+			try {
+				ResultSet rs = con.executeQuery("SELECT * FROM RANKS WHERE UUID ='" + Utils.getUUID(player) + "';");
+				if(rs.next()) {
+					cache.put(Utils.getUUID(player), Ranks.getRank(rs.getInt("rankID")));
+					hideCache.put(Utils.getUUID(player), rs.getInt("hiddenRank"));
+					teams.get(Ranks.getFromChatColor(getRankColor(player))).addEntry(player.getName());
+				} else {
+					con.execute("INSERT INTO RANKS (UUID) VALUES ('" + Utils.getUUID(player) + "');");
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
+		}
+	}
+	public Ranks getRank(Player player) {
+		return cache.get(Utils.getUUID(player));
+	}
+	public ChatColor getRankColor(OfflinePlayer offlinePlayer) {
+		if(cache.containsKey(Utils.getUUID(offlinePlayer))) {
+			if(hideCache.get(Utils.getUUID(offlinePlayer)) > 0) {
+				return Ranks.getRank(hideCache.get(Utils.getUUID(offlinePlayer))).getColor();
+			} else return cache.get(Utils.getUUID(offlinePlayer)).getColor();
+		} else return ChatColor.BLUE;
+	}
+	
+	public boolean changeRank(Player player, Ranks rank) {
+		if(rank.getIndex() > cache.get(Utils.getUUID(player)).getIndex()) {
+			player.sendMessage(plugin.header + ChatMessages.NO_RANK_CHANGE.toText());
+			return false;
+		} else {
+			hideCache.replace(Utils.getUUID(player), rank.getIndex());
+			player.sendMessage(plugin.header + ChatMessages.RANKCHANGE.toText());
+			return true;
+		}
+	} 
+	public void toggleRank(Player player) {
+		if(cache.get(Utils.getUUID(player)).getIndex() == 1) {
+			player.sendMessage(plugin.header + ChatMessages.NO_RANK_CHANGE.toText());
+			return;
+		}
+		if(hideCache.get(Utils.getUUID(player)) == 1) {
+			hideCache.replace(Utils.getUUID(player), cache.get(Utils.getUUID(player)).getIndex());
+			player.sendMessage(plugin.header + ChatMessages.RANKTOGGLE.toText());
+		} else {
+			hideCache.replace(Utils.getUUID(player), 1);
+			player.sendMessage(plugin.header + ChatMessages.RANKTOGGLE.toText());
+		}
+	}
+	public void unLoad(Player player) {
+		if(cache.containsKey(Utils.getUUID(player))) {
+			cache.remove(Utils.getUUID(player));
+			hideCache.remove(Utils.getUUID(player));
+		}
+	}
+	public void reLoad(Player player) {
+		cache.remove(Utils.getUUID(player));
+		hideCache.remove(Utils.getUUID(player));
+		load(player);
+	}
+	public void saveAll() throws SQLException {
+		for(String s : hideCache.keySet()) {
+			con.execute("UPDATE RANKS SET hiddenRank = " + hideCache.get(s) + " WHERE UUID = '" + s + "';");
+		}
+	}
+}

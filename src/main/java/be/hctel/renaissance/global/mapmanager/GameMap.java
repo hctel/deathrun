@@ -87,7 +87,5 @@ public class GameMap {
 	public void addCheckpoint(Checkpoint cp) {
 		checkpoints.add(cp);
 		worldConfig.getJSONArray("checkpoints").put(cp.getSaveJson());
-		System.out.println("Saved checkpoint");
-		System.out.println(worldConfig.getJSONArray("checkpoints"));
 	}
 }

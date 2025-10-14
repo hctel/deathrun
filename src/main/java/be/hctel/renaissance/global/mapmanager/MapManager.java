@@ -3,6 +3,7 @@ package be.hctel.renaissance.global.mapmanager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
@@ -77,6 +78,10 @@ public class MapManager {
 	
 	public Config getMapConfig() {
 		return this.mapConfig;
+	}
+	
+	public List<GameMap> getMaps() {
+		return gameMaps;
 	}
 	
 	public JSONObject getMapConfig(World w) {

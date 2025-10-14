@@ -62,3 +62,8 @@ commands:
     usage: /tsw
     permission: dr.admin
     description: start wall test
+  vote:
+    usage: /vote [1-6]
+    permission: dr.basic
+    description: Registers or shows votes
+    aliases: [v, votes]
