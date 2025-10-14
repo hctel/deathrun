@@ -28,6 +28,8 @@ public class TrapControls implements Listener {
 
 	private DeathRun plugin;
 	
+	private Trap trap;
+	
 	private ItemStack triggerItem = Utils.createQuickItemStack(Material.MAGMA_CREAM, "§a§lTrigger trap!");
 	private ItemStack cooldownItem = Utils.createQuickItemStack(Material.SLIME_BALL, "§cTrap on cooldown...");
 	
@@ -84,17 +86,20 @@ public class TrapControls implements Listener {
 		centerEntity.setGravity(false);
 		centerEntity.setInvulnerable(true);		
 		
-		for(int x = this.controlsStartLocation.getBlockX(); x <= this.controlsEndLocation.getBlockX(); x++) {
-			for(int y = this.controlsStartLocation.getBlockY(); y <= this.controlsEndLocation.getBlockY(); y++) {
-				for(int z = this.controlsStartLocation.getBlockZ(); z <= this.controlsEndLocation.getBlockZ(); z++) {
-					Block b = new Location(this.controlsStartLocation.getWorld(), x, y, z).getBlock();
-					if(b.getType().toString().contains("STAINED_GLASS")) {
-						b.setType(Material.LIME_STAINED_GLASS);
-						glassBlocks.add(b);
-					}
+		Vector max = Vector.getMaximum(controlsStartLocation.toVector(), controlsEndLocation.toVector());
+		Vector min = Vector.getMinimum(controlsStartLocation.toVector(), controlsEndLocation.toVector());
+		for (int i = min.getBlockX(); i <= max.getBlockX();i++) {
+		  for (int j = min.getBlockY(); j <= max.getBlockY(); j++) {
+		    for (int k = min.getBlockZ(); k <= max.getBlockZ();k++) {
+		      Block b = controlsStartLocation.getWorld().getBlockAt(i,j,k);
+		      if(b.getType().toString().contains("STAINED_GLASS")) {
+					b.setType(Material.LIME_STAINED_GLASS);
+					glassBlocks.add(b);
 				}
-			}
+		    }
+		  }
 		}
+		
 		
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		
@@ -159,7 +164,7 @@ public class TrapControls implements Listener {
 	private void performTrap() {
 		if(status == TrapStatus.READY) {
 			setupRunnables();
-			new Trap(plugin, trapStartLocation, trapStopLocation, width, height, steps, delay, type, trapResetDelay, cooldownDelay).startTrap();
+			this.trap = new Trap(plugin, trapStartLocation, trapStopLocation, width, height, steps, delay, type, trapResetDelay, cooldownDelay).startTrap();
 			status = TrapStatus.COOLDOWN0;
 			for(Block B : glassBlocks) B.setType(Material.RED_STAINED_GLASS);
 			postTrapTask.runTaskLater(plugin, cooldownDelay/2);
@@ -219,6 +224,7 @@ public class TrapControls implements Listener {
 	
 	public void serverStop() {
 		centerEntity.remove();
+		if(trap != null) trap.forceReset();
 	}	
 	
 	public static TrapControls getFromJsonObject(DeathRun plugin, JSONObject o) {

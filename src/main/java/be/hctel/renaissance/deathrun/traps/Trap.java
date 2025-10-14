@@ -47,6 +47,7 @@ public class Trap {
 	private double stepDistance;
 	
 	private int stepnr = 0;
+	private boolean hasReset = false;
 	
 	private BukkitRunnable trapTask;
 	private BukkitRunnable resetTask;
@@ -182,12 +183,23 @@ public class Trap {
 	
 	/**
 	 * Starts the trap
+	 * @return 
 	 */
-	public void startTrap() {
+	public Trap startTrap() {
 		workLocation = startLocation.clone();
 		if(delay == 0) trapTask.runTask(plugin);
 		else trapTask.runTaskTimer(plugin, 0L, delay);
 		if(type.doesReset()) resetTask.runTaskLater(plugin, delay*(steps+2)+trapReset);
+		return this;
+	}
+	
+	public void forceReset() {
+		if(type.doesReset() && !hasReset) {
+			resetTask.cancel();
+			for(BlockState S : changedBlocks) {
+				S.update(true);
+			}
+		}
 	}
 	
 	/**
@@ -241,6 +253,7 @@ public class Trap {
 					for(BlockState B : changedBlocks) {
 						B.update(true);
 					}
+					hasReset = true;
 				}			
 			};
 		}
