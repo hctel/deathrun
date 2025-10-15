@@ -13,7 +13,7 @@ public enum Role {
 	/**
 	 * Default player role.
 	 */
-	RUNNER("§7Runner"),
+	RUNNER("§dRunner"),
 	/**
 	 * Death role. These players can activate traps and run alongside the racetrack.
 	 */

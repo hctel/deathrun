@@ -42,6 +42,12 @@ public class VotesHandler {
 			while(a.contains(b)) {
 				b = maps.get(r.nextInt(maps.size()));
 			}
+			if(i == 0) {
+				GameMap map = plugin.mapManager.getMap(plugin.getServer().getWorld("DR_Alaran_Ruins"));
+				a.add(map);
+				votes.put(map, 0);
+			continue;
+			}
 			a.add(b);
 			votes.put(b, 0);
 		}

@@ -19,6 +19,20 @@ import org.bukkit.util.Vector;
 import be.hctel.api.Utils;
 
 public enum TrapType {
+	QUICKSAND(new TrapMethod() {
+
+		@Override
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
+			Location workLocation = point.clone();
+			for(int i = 0; i < width; i++) {
+				if(workLocation.getBlock().getType() == Material.SOUL_SAND) {
+					trap.getBlockStateList().add(workLocation.getBlock().getState());
+					Utils.transformToFallingBlock(workLocation.getBlock());
+				}
+				workLocation.add(crossVector);
+			}		
+		}		
+	}, false, true, TrapOrientation.HORIZONTAL, Material.SOUL_SAND),
 	WALL_SPAWN(new TrapMethod() {
 
 		@Override

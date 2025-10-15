@@ -76,15 +76,15 @@ public class MainGameEngine {
 		}
 		
 		if(wishDeaths.size() > 0) {
-			Player chosenDeath = wishDeaths.get(new Random().nextInt(wishDeaths.size()-1));
+			Player chosenDeath = wishDeaths.get(new Random().nextInt(wishDeaths.size()));
 			plugin.cosmetics.addTokens(chosenDeath, -100);
 			deaths.add(chosenDeath);
 			runners.remove(chosenDeath);
 		} else {
-			Player chosenDeath = runners.get(new Random().nextInt(runners.size()-1));
+			Player chosenDeath = runners.get(new Random().nextInt(runners.size()));
 			while(wishRunner.contains(chosenDeath)) {
 				plugin.cosmetics.addTokens(chosenDeath, -50);
-				chosenDeath = runners.get(new Random().nextInt(runners.size()-1));
+				chosenDeath = runners.get(new Random().nextInt(runners.size()));
 			}
 			deaths.add(chosenDeath);
 			runners.remove(chosenDeath);
@@ -101,7 +101,7 @@ public class MainGameEngine {
 			scoreboard.setLine(11, String.format("§7Runners: §r%d", runners.size()));
 			scoreboard.setLine(10, "§7GameID:");
 			scoreboard.setLine(9, "00000");
-			scoreboard.setLine(8, "6b§lMy Round Stats");
+			scoreboard.setLine(8, "§b§lMy Round Stats");
 			scoreboard.setLine(6, String.format("§7Role: %s", getRole(P).getDisplay()));
 			scoreboard.setLine(5, "§7Points: §r0");
 			scoreboard.setLine(4, "§7Deaths: §r0");
@@ -189,6 +189,7 @@ public class MainGameEngine {
 				}
 				if(timer == 300) {
 					destroyStartWall();
+					giveHeads();
 				}
 				if(timer == 0) {
 					endGame();
@@ -224,6 +225,14 @@ public class MainGameEngine {
 		Location deathLoc = Utils.jsonToLocation(map.getConfig().getJSONObject("deathSpawn"));
 		for(Player P : deaths) {
 			P.teleport(deathLoc);
+		}
+	}
+	
+	private void giveHeads() {
+		for(Player player : runners) {
+			player.getInventory().setItem(3, Utils.skullBuilder(plugin.stats.getStrafeColor(player).getLeftTextureURL(), "§a§lStrafe Left"));
+			player.getInventory().setItem(5, Utils.skullBuilder(plugin.stats.getStrafeColor(player).getRightTextureURL(), "§a§lStrafe Right"));
+			player.getInventory().setItem(4, Utils.skullBuilder(plugin.stats.getStrafeColor(player).getBackTextureURL(), "§a§lStrafe Backwards"));
 		}
 	}
 	
