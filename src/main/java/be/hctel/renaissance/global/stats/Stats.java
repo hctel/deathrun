@@ -57,7 +57,7 @@ public class Stats {
 					joinMessages.put(player, new JSONArray(rs.getString("ownedJoinMessages")));
 					currentJoinMessages.put(player, rs.getString("currentJoinMessage"));
 				} else {
-					connector.execute(String.format("INSERT INTO %s (uuid) VALUES ('%s');", plugin.getName(), Utils.getUUID(player)));
+					connector.execute(String.format("INSERT INTO %s (uuid, json, preferences, ownedJoinMessages, currentJoinMessage) VALUES ('%s', '%s', '%s', '%s', '%s');", plugin.getName(), Utils.getUUID(player), defaultStatsJson, defaultPrefsJson, defaultJoinMessages, defaultJoinMessage));
 					jsons.put(player, new JSONObject(defaultStatsJson));
 					preferences.put(player, new JSONObject(defaultPrefsJson));
 					joinMessages.put(player, new JSONArray(defaultJoinMessages));

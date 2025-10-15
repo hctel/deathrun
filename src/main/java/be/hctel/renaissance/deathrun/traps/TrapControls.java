@@ -125,13 +125,15 @@ public class TrapControls implements Listener {
 
 					@Override
 					public void run() {
-						for(Block B : glassBlocks) B.setType(Material.LIME_STAINED_GLASS);
-						status = TrapStatus.READY;
-						for(Entity E : centerEntity.getNearbyEntities(controlsSize.getX()/2, controlsSize.getY()/2, controlsSize.getZ()/2)) {
-							if(E instanceof Player) {
-								Player player = (Player) E;
-								if(player.getInventory().contains(cooldownItem)) {
-									player.getInventory().setItem(4, triggerItem);
+						if(status != TrapStatus.GAME_END) {
+							for(Block B : glassBlocks) B.setType(Material.LIME_STAINED_GLASS);
+							status = TrapStatus.READY;
+							for(Entity E : centerEntity.getNearbyEntities(controlsSize.getX()/2, controlsSize.getY()/2, controlsSize.getZ()/2)) {
+								if(E instanceof Player) {
+									Player player = (Player) E;
+									if(player.getInventory().contains(cooldownItem)) {
+										player.getInventory().setItem(4, triggerItem);
+									}
 								}
 							}
 						}
@@ -192,8 +194,10 @@ public class TrapControls implements Listener {
 							if(status == TrapStatus.READY) {
 								e.getPlayer().getInventory().setItem(4, triggerItem);
 							}
-							else {
+							else if(status != TrapStatus.GAME_END) {
 								e.getPlayer().getInventory().setItem(4, cooldownItem);
+							} else {
+								e.getPlayer().getInventory().setItem(4, null);
 							}
 						}
 					}.runTaskLater(plugin, 1L);
@@ -221,6 +225,10 @@ public class TrapControls implements Listener {
 			}
 		}
 	}
+	
+	public void gameEnd() {
+		this.status = TrapStatus.GAME_END;
+	};
 	
 	public void serverStop() {
 		centerEntity.remove();

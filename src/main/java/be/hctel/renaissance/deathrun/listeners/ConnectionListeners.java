@@ -17,10 +17,16 @@ public class ConnectionListeners implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		plugin.stats.loadPlayer(e.getPlayer());
+		plugin.ranks.load(e.getPlayer());
+		plugin.cosmetics.loadPlayer(e.getPlayer());
+		plugin.preGameTimer.loadPlayer(e.getPlayer());
+		plugin.votesHandler.sendMapChoices(e.getPlayer());
 	}
 	
 	@EventHandler
 	public void onDisconnect(PlayerQuitEvent e) {
 		plugin.stats.unloadPlayer(e.getPlayer());
+		plugin.ranks.unLoad(e.getPlayer());
+		plugin.cosmetics.unloadPlayer(e.getPlayer());
 	}
 }

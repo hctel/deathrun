@@ -76,6 +76,12 @@ public class TrapManager implements Listener {
 		}
 	}
 	
+	public void endGame() {
+		for(TrapControls T : traps) {
+			T.gameEnd();
+		}
+	}
+	
 	public void stop() {
 		for(TrapControls T : traps) {
 			T.serverStop();

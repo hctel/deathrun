@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Team;
 import org.bukkit.util.Vector;
 import org.joml.Random;
 import org.json.JSONObject;
@@ -58,7 +57,7 @@ public class MainGameEngine {
 	private HashMap<Player, Integer> points = new HashMap<>();
 	private HashMap<Player, Integer> tokens = new HashMap<>();
 	private HashMap<Player, DynamicScoreboard> scoreboards = new HashMap<>();
-	private HashMap<Player, Team> playerTeams = new HashMap<>();
+	//private HashMap<Player, Team> playerTeams = new HashMap<>();
 	private HashMap<Player, Long> finishTime = new HashMap<>();
 	
 	/**
@@ -71,6 +70,7 @@ public class MainGameEngine {
 	}
 	
 	public void startGame(GameMap map, List<Player> wishDeaths, List<Player> wishRunner) {
+		this.map = map;
 		for(Player P : plugin.getServer().getOnlinePlayers()) {
 			runners.add(P);
 		}
@@ -81,10 +81,10 @@ public class MainGameEngine {
 			deaths.add(chosenDeath);
 			runners.remove(chosenDeath);
 		} else {
-			Player chosenDeath = runners.get(new Random().nextInt(wishDeaths.size()-1));
+			Player chosenDeath = runners.get(new Random().nextInt(runners.size()-1));
 			while(wishRunner.contains(chosenDeath)) {
 				plugin.cosmetics.addTokens(chosenDeath, -50);
-				chosenDeath = runners.get(new Random().nextInt(wishDeaths.size()-1));
+				chosenDeath = runners.get(new Random().nextInt(runners.size()-1));
 			}
 			deaths.add(chosenDeath);
 			runners.remove(chosenDeath);
@@ -109,9 +109,9 @@ public class MainGameEngine {
 			scoreboard.setLine(2, "§7§m--------");
 			scoreboard.setLine(1, "");
 			scoreboards.put(P, scoreboard);
-			Team playerTeam = plugin.getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("Team"+P.getName());
-			playerTeam.setCanSeeFriendlyInvisibles(true);
-			playerTeams.put(P, playerTeam);
+//			Team playerTeam = plugin.getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("Team"+P.getName());
+//			playerTeam.setCanSeeFriendlyInvisibles(true);
+//			playerTeams.put(P, playerTeam);
 			P.sendTitle("§b§l" + map.getName(), "§3By " + map.getAuthor(), 10, 70, 20);
 		}
 		ArrayList<Location> preshow = new ArrayList<>();
@@ -161,7 +161,7 @@ public class MainGameEngine {
 						if(timer == 300) {
 							gameStartEpoch = System.currentTimeMillis();
 							scoreboards.get(P).addReceiver(P);
-							P.sendTitle("§c§l < RUN! >", "§3The game has BEGUN!", 0, 70, 20);
+							P.sendTitle("§c§l< RUN! >", "§3The game has BEGUN!", 0, 70, 20);
 						}
 						if(timer == 60) {
 							P.sendMessage(plugin.header + "§aGame ends in 60 seconds!");
@@ -257,8 +257,15 @@ public class MainGameEngine {
 	
 	private void endGame() {
 		eachSecondTask.cancel();
+		timer = 0;
+		plugin.mapManager.getTrapManager(map).endGame();
 		for(BlockState S : changedStartBlocks) {
 			S.update(true);
+		}
+		for(Player P : plugin.getServer().getOnlinePlayers()) {
+			P.sendTitle("§3< Game Over! >", null, 10, 70, 20);
+			P.playSound(P, Sound.ENTITY_BLAZE_SHOOT, 1.0f, 1.0f);
+			scoreboards.get(P).removeReceiver(P);
 		}
 	}
 	
@@ -287,11 +294,13 @@ public class MainGameEngine {
 			}
 			timer = 90;
 		}
+		runners.remove(player);
 		player.sendTitle("", "§cYou are now spectating!", 10, 70, 20);
 		player.addPotionEffect(endPotionEffect);
 		plugin.getServer().broadcastMessage(String.format("%s%s%s §3finished §b%s§3. §7(%s)", plugin.header, plugin.ranks.getRankColor(player), player.getName(), Utils.ordinal(finishTime.size()), Utils.formatMilliseconds(runTime)));
 		player.sendMessage(plugin.header + "§bYou finished your run in " + Utils.formatMilliseconds(runTime) + "!");
 		player.teleport(map.getSpawn());
+		if(runners.size() == 0) endGame();
 	}
 	
 	public void checkpoint(Player player) {

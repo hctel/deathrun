@@ -159,7 +159,7 @@ public class StaffCommands implements CommandExecutor {
 						}
 					}
 				}
-				player.sendMessage(plugin.header + (spawnLocs.size() == 20 ? "§aSize is OK" : "§cSize not matching 20 players: §4" + spawnLocs.size()));
+				player.sendMessage(plugin.header + (spawnLocs.size() == 20 ? "§aSize is OK (" + Material.valueOf(map.getConfig().getString("spawnMaterial")) + ")" : "§cSize not matching 20 players: §4" + spawnLocs.size()));
 				return true;
 			}
 			if(command.getName().equalsIgnoreCase("swt")) {

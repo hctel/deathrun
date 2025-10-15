@@ -25,16 +25,22 @@ public class CosmeticsManager {
 		this.plugin = plugin;
 	}
 	
-	public void loadPlayer(OfflinePlayer player) throws SQLException {
-		ResultSet rs = con.executeQuery("SELECT * FROM cosmetics WHERE UUID = '" + Utils.getUUID(player) + "';");
-		if(rs.next()) {
-			tokens.put(player, rs.getInt("TOKENS"));
-			goldMedals.put(player, rs.getInt("MEDALS"));
-		} else {
-			con.execute("INSERT INTO cosmetics (UUID) VALUES ('" + Utils.getUUID(player) + "');");
-			tokens.put(player, 0);
-			goldMedals.put(player, 0);
-		}
+	public void loadPlayer(OfflinePlayer player){
+		ResultSet rs;
+		try {
+			rs = con.executeQuery("SELECT * FROM cosmetics WHERE UUID = '" + Utils.getUUID(player) + "';");
+			if(rs.next()) {
+				tokens.put(player, rs.getInt("TOKENS"));
+				goldMedals.put(player, rs.getInt("MEDALS"));
+			} else {
+				con.execute("INSERT INTO cosmetics (UUID) VALUES ('" + Utils.getUUID(player) + "');");
+				tokens.put(player, 0);
+				goldMedals.put(player, 0);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 	
 	public int getTokens(OfflinePlayer player) {
@@ -69,12 +75,16 @@ public class CosmeticsManager {
 		return addGoldMedals(player, 1);
 	}
 	
-	public void unloadPlayer(OfflinePlayer player) throws SQLException {
-		if(tokens.containsKey(player)) {
-			con.execute("UPDATE cosmetics SET TOKENS = " + tokens.get(player) + ", MEDALS = "+ goldMedals.get(player) + " WHERE UUID = '" + Utils.getUUID(player) + "';");
-			tokens.remove(player);
-			goldMedals.remove(player);
-			plugin.getLogger().info(String.format("Saved %s's cosmetics (%s tokens, %s gold medals)", player.getName(), tokens.get(player), goldMedals.get(player)));
+	public void unloadPlayer(OfflinePlayer player){
+		try {
+			if(tokens.containsKey(player)) {
+				con.execute("UPDATE cosmetics SET TOKENS = " + tokens.get(player) + ", MEDALS = "+ goldMedals.get(player) + " WHERE UUID = '" + Utils.getUUID(player) + "';");
+				tokens.remove(player);
+				goldMedals.remove(player);
+				plugin.getLogger().info(String.format("Saved %s's cosmetics (%s tokens, %s gold medals)", player.getName(), tokens.get(player), goldMedals.get(player)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	public boolean isLoaded(OfflinePlayer player) {

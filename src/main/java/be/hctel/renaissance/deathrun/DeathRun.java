@@ -20,6 +20,7 @@ import be.hctel.renaissance.deathrun.listeners.BlockListeners;
 import be.hctel.renaissance.deathrun.listeners.ConnectionListeners;
 import be.hctel.renaissance.deathrun.listeners.EntityTrapListeners;
 import be.hctel.renaissance.deathrun.listeners.PlayerListener;
+import be.hctel.renaissance.global.game.PreGameTimer;
 import be.hctel.renaissance.global.mapmanager.MapManager;
 import be.hctel.renaissance.global.mapmanager.VotesHandler;
 import be.hctel.renaissance.global.storage.SQLConnector;
@@ -36,6 +37,8 @@ public class DeathRun extends JavaPlugin {
 	public CosmeticsManager cosmetics;
 	public RankManager ranks;
 	public VotesHandler votesHandler;
+	public MainGameEngine engine;
+	public PreGameTimer preGameTimer;
 	
 	public MultiverseCore core;
 	public MultiverseCoreApi mvAPI;
@@ -59,7 +62,6 @@ public class DeathRun extends JavaPlugin {
 		stats = new DRStats(plugin, connector);
 		cosmetics = new CosmeticsManager(connector, plugin);
 		ranks = new RankManager(connector, plugin);
-		votesHandler = new VotesHandler(plugin);
 		
 		core = (MultiverseCore) Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core");
 		mvAPI = core.getApi();
@@ -67,7 +69,9 @@ public class DeathRun extends JavaPlugin {
 		mapManager = new MapManager(plugin);
 		mainGameEngine = new MainGameEngine(plugin);
 		scoreboardManager = getServer().getScoreboardManager();
-		
+		votesHandler = new VotesHandler(plugin);
+		preGameTimer = new PreGameTimer(plugin);
+
 		loadCommands();
 		registerListeners();
 		getLogger().info("Enabled DeathRun");
