@@ -1,7 +1,6 @@
 package be.hctel.renaissance.deathrun;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_21_R5.block.data.CraftBlockData;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.mvplugins.multiverse.core.MultiverseCore;
@@ -26,7 +25,6 @@ import be.hctel.renaissance.global.mapmanager.MapManager;
 import be.hctel.renaissance.global.mapmanager.VotesHandler;
 import be.hctel.renaissance.global.storage.SQLConnector;
 import be.hctel.renaissance.ranks.RankManager;
-import net.minecraft.world.level.block.state.IBlockData;
 
 public class DeathRun extends JavaPlugin {
 	
@@ -57,7 +55,6 @@ public class DeathRun extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		getLogger().info("Enabling DeathRun");
-		System.out.println(Bukkit.getServer().getClass().getPackage().getName());
 		plugin = this;
 		
 		loadCredentials();
@@ -76,9 +73,6 @@ public class DeathRun extends JavaPlugin {
 		preGameTimer = new PreGameTimer(plugin);
 		loadCommands();
 		registerListeners();
-		CraftBlockData d = ((CraftBlockData) Bukkit.getWorld("world").getBlockData(1, 4, 1));
-		IBlockData nd = d.getState();
-		net.minecraft.world.level.block.Block.j(nd);
 		getLogger().info("Enabled DeathRun");
 	}
 	
