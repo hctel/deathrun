@@ -21,6 +21,7 @@ public class ConnectionListeners implements Listener {
 		plugin.cosmetics.loadPlayer(e.getPlayer());
 		plugin.preGameTimer.loadPlayer(e.getPlayer());
 		plugin.votesHandler.sendMapChoices(e.getPlayer());
+		e.getPlayer().teleport(plugin.getServer().getWorld("DR_Hub").getSpawnLocation());
 	}
 	
 	@EventHandler

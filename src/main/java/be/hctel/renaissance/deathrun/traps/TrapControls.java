@@ -231,6 +231,7 @@ public class TrapControls implements Listener {
 	};
 	
 	public void serverStop() {
+		centerEntity.getLocation().getChunk().load();
 		centerEntity.remove();
 		if(trap != null) trap.forceReset();
 	}	
