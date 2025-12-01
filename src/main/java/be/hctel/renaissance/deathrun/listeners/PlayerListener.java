@@ -1,14 +1,18 @@
 package be.hctel.renaissance.deathrun.listeners;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Giant;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -140,6 +144,32 @@ public class PlayerListener implements Listener {
 					}.runTaskTimer(plugin, 0L, 20L);
 					break;
 				}
+				}
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onDamage(EntityDamageEvent e) {
+		if(e.getEntity() instanceof Player) {
+			System.out.println(e.getCause());
+			switch(e.getCause()) {
+				case ENTITY_ATTACK: {
+					e.setCancelled(true);
+					break;
+				}
+				case ENTITY_SWEEP_ATTACK: {
+					e.setCancelled(true);
+					break;
+				}
+				default: break;
+			}
+		}
+		else if(e.getEntity() instanceof Giant) {
+			List<Entity> nearby = e.getEntity().getNearbyEntities(11, 2, 11);
+			for(Entity E : nearby) {
+				if(E instanceof Player) {
+					plugin.mainGameEngine.killPlayer(((Player) E));
 				}
 			}
 		}

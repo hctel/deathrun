@@ -1,9 +1,12 @@
 package be.hctel.renaissance.deathrun.listeners;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 
@@ -15,6 +18,16 @@ public class BlockListeners implements Listener {
 			e.getEntity().remove();
 		}
 
+	}
+	
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent e) {
+		if(e.getPlayer().getGameMode() != GameMode.CREATIVE) e.setCancelled(true);
+	}
+	
+	@EventHandler
+	public void onBlockPlace(BlockPlaceEvent e) {
+		if(e.getPlayer().getGameMode() != GameMode.CREATIVE) e.setCancelled(true);
 	}
 	
 	@EventHandler
