@@ -38,7 +38,7 @@ public class Stats {
 	/**
 	 * the super() to call when creating a Stats child class constructor
 	 * @param plugin the plugin's main class (extends {@link org.bukkit.plugin.java.JavaPlugin})
-	 * @param connector An instanfe of an {@link be.hctel.renaissance.global.storage.SQLConnector}
+	 * @param connector An instance of an {@link be.hctel.renaissance.global.storage.SQLConnector}
 	 */
 	protected Stats(Plugin plugin, SQLConnector connector) {
 		this.plugin = plugin;
