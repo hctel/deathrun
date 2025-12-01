@@ -2,7 +2,7 @@ name: DR
 author: hctel
 version: 00.0Beta
 main: be.hctel.renaissance.deathrun.DeathRun
-api-version: 1.21.8
+api-version: 1.21.10
 depend: [Multiverse-Core]
 prefix: DeathRun-TEST-00.0Beta
 load: POSTWORLD
