@@ -71,7 +71,12 @@ public class MainGameEngine {
 	
 	public void startGame(GameMap map, List<Player> wishDeaths, List<Player> wishRunner) {
 		this.map = map;
+		System.out.println("Main thread ? " + plugin.getServer().isPrimaryThread());
 		for(Player P : plugin.getServer().getOnlinePlayers()) {
+			P.setGameMode(GameMode.SPECTATOR);
+			for(Player P2 : plugin.getServer().getOnlinePlayers()) {
+				P2.hidePlayer(plugin, P);
+			}
 			runners.add(P);
 		}
 		
@@ -95,24 +100,25 @@ public class MainGameEngine {
 			points.put(P, 0);
 			tokens.put(P, 0);
 			DynamicScoreboard scoreboard = new DynamicScoreboard(P.getName()+"_DR_INGAME", "§c§lDeathRun", plugin.scoreboardManager);
-			scoreboard.setLine(14, "");
+			scoreboard.setLine(14, "  ");
 			scoreboard.setLine(13, "§e§lGame Info");
 			scoreboard.setLine(12, "§7Time: §r00:00");
 			scoreboard.setLine(11, String.format("§7Runners: §r%d", runners.size()));
 			scoreboard.setLine(10, "§7GameID:");
 			scoreboard.setLine(9, "00000");
-			scoreboard.setLine(8, "§b§lMy Round Stats");
+			scoreboard.setLine(8, "   ");
+			scoreboard.setLine(7, "§b§lMy Round Stats");
 			scoreboard.setLine(6, String.format("§7Role: %s", getRole(P).getDisplay()));
 			scoreboard.setLine(5, "§7Points: §r0");
 			scoreboard.setLine(4, "§7Deaths: §r0");
-			scoreboard.setLine(3, "");
+			scoreboard.setLine(3, " ");
 			scoreboard.setLine(2, "§7§m--------");
 			scoreboard.setLine(1, "");
 			scoreboards.put(P, scoreboard);
 //			Team playerTeam = plugin.getServer().getScoreboardManager().getMainScoreboard().registerNewTeam("Team"+P.getName());
 //			playerTeam.setCanSeeFriendlyInvisibles(true);
 //			playerTeams.put(P, playerTeam);
-			P.sendTitle("§b§l" + map.getName(), "§3By " + map.getAuthor(), 10, 70, 20);
+			//P.sendTitle("§b§l" + map.getName(), "§3By " + map.getAuthor(), 10, 70, 20);
 		}
 		ArrayList<Location> preshow = new ArrayList<>();
 		if(map.getConfig().has("preshow")) {
@@ -129,13 +135,18 @@ public class MainGameEngine {
 				for(Player P : plugin.getServer().getOnlinePlayers()) {
 					if(getRole(P) == Role.RUNNER || getRole(P) == Role.DEATH) {
 						if(timer > 317) {
-							if(preshow.size() > 0) P.teleport(preshow.get(0));
-							else teleportToSpawn();
+							if(preshow.size() > 0) {
+								P.teleport(preshow.get(0));
+							}
 							if(timer == 319) P.sendTitle("§b§b" + map.getName(), "§3By " + map.getAuthor(), 10,70,20);
 						} else if(timer <= 317 && timer > 313) {
-							if(preshow.size() > 1) P.teleport(preshow.get(1));
+							if(preshow.size() > 1) {
+								P.teleport(preshow.get(1));
+							}
 						} else if(timer <= 313 && timer > 310) {
-							if(preshow.size() > 2) P.teleport(preshow.get(2));
+							if(preshow.size() > 2) {
+								P.teleport(preshow.get(2));
+							}
 						}
 						if(timer == 308) {
 							P.sendTitle("§ePrepare to run!", null, 10,70,20);						
@@ -184,6 +195,11 @@ public class MainGameEngine {
 						}
 					}
 				}
+				if(timer == 317) {
+					if(preshow.size() < 1) {
+						teleportToSpawn();
+					}
+				}
 				if(timer == 310 && preshow.size() > 0) {
 					teleportToSpawn();
 				}
@@ -218,13 +234,18 @@ public class MainGameEngine {
 				}
 			}
 		}
-		System.out.println(spawnLocs.size());
 		for(int i = 0; i < runners.size(); i++) {
 			runners.get(i).teleport(spawnLocs.get(i));
 		}
 		Location deathLoc = Utils.jsonToLocation(map.getConfig().getJSONObject("deathSpawn"));
 		for(Player P : deaths) {
 			P.teleport(deathLoc);
+		}
+		for(Player P : plugin.getServer().getOnlinePlayers()) {
+			P.setGameMode(GameMode.ADVENTURE);
+			for(Player P2 : plugin.getServer().getOnlinePlayers()) {
+				P2.showPlayer(plugin, P);
+			}
 		}
 	}
 	
@@ -284,7 +305,7 @@ public class MainGameEngine {
 	 * @param player The player to kill
 	 */
 	public void killPlayer(Player player) {
-		if(player.getGameMode() == GameMode.CREATIVE) return;
+		if(player.getGameMode() == GameMode.CREATIVE | getRole(player) != Role.RUNNER) return;
 		Location toTeleport = respawnLocation.get(player);
 		if(toTeleport == null) toTeleport = map.getSpawn();
 		player.teleport(toTeleport);
