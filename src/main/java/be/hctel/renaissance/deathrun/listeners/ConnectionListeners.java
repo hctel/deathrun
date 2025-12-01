@@ -9,19 +9,22 @@ import be.hctel.renaissance.deathrun.DeathRun;
 
 public class ConnectionListeners implements Listener {
 	DeathRun plugin;
-	
 	public ConnectionListeners(DeathRun plugin) {
 		this.plugin = plugin;
 	}
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		e.setJoinMessage(null);
 		plugin.stats.loadPlayer(e.getPlayer());
 		plugin.ranks.load(e.getPlayer());
 		plugin.cosmetics.loadPlayer(e.getPlayer());
 		plugin.preGameTimer.loadPlayer(e.getPlayer());
 		plugin.votesHandler.sendMapChoices(e.getPlayer());
-		e.getPlayer().teleport(plugin.getServer().getWorld("DR_Hub").getSpawnLocation());
+		e.getPlayer().teleport(plugin.mapManager.getMap(plugin.getServer().getWorld("DR_Hub")).getSpawn());
+		if(!plugin.preGameTimer.gameStarted) {
+			e.getPlayer().getInventory().clear();
+		}
 	}
 	
 	@EventHandler
