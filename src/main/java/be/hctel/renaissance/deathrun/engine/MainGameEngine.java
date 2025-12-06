@@ -371,4 +371,8 @@ public class MainGameEngine {
 		return Role.TEST;
 	}
 	
+	public boolean isGameOngoing() {
+		return gameOngoig;
+	}
+	
 }
