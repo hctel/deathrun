@@ -12,6 +12,8 @@ public class DRStats extends Stats {
 	public DRStats(Plugin plugin, SQLConnector connector) {
 		super(plugin, connector);
 		this.defaultPrefsJson = "{\"viewOthers\":\"visible\", \"strafeColor\":\"GREEN\"}";
+		this.defaultJoinMessage = "%s §7wants to run!";
+		this.defaultJoinMessages = "[\"%s has joined.\"]";
 	}
 	
 	public StrafeColor getStrafeColor(OfflinePlayer player) {
