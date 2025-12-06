@@ -12,6 +12,7 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Giant;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -19,6 +20,16 @@ import org.bukkit.util.Vector;
 import be.hctel.api.Utils;
 
 public enum TrapType {
+	GIANT(new TrapMethod() {
+		@Override
+		public void trapStep(Location point, int width, int height, int stepnr, Vector direction, Vector crossVector, Trap trap) {
+			if(stepnr == 0) {
+				Giant g = (Giant) trap.getCenter().getWorld().spawnEntity(trap.getCenter().clone().add(0, 15, 0), EntityType.GIANT);
+				g.setCustomName("owo giant trap owo/" + trap.getArea().getX()/2 + "/" + trap.getArea().getZ()/2);
+			}
+		}
+		
+	}, true, false, TrapOrientation.HORIZONTAL, Material.ZOMBIE_HEAD, 1),
 	QUICKSAND(new TrapMethod() {
 
 		@Override

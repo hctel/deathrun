@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Difficulty;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -39,6 +40,8 @@ public class MapManager {
 			W.setGameRule(GameRule.DO_FIRE_TICK, false);
 			W.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
 			W.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+			W.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+			W.setDifficulty(Difficulty.NORMAL);
 			plugin.getLogger().info("Loading " + W.getName());
 			if(!mapConfig.getConfig().has(W.getName())) {
 				JSONObject mapJson = new JSONObject();

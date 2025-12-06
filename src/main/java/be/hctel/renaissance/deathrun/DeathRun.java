@@ -118,7 +118,7 @@ public class DeathRun extends JavaPlugin {
 	private void registerListeners() {
 		getServer().getPluginManager().registerEvents(new PlayerListener(plugin), plugin);
 		getServer().getPluginManager().registerEvents(new BlockListeners(), plugin);
-		getServer().getPluginManager().registerEvents(new EntityTrapListeners(), plugin);
+		getServer().getPluginManager().registerEvents(new EntityTrapListeners(plugin), plugin);
 		getServer().getPluginManager().registerEvents(new ConnectionListeners(plugin), plugin);
 	}
 }
