@@ -22,6 +22,8 @@ public class ConnectionListeners implements Listener {
 		plugin.preGameTimer.loadPlayer(e.getPlayer());
 		plugin.votesHandler.sendMapChoices(e.getPlayer());
 		e.getPlayer().teleport(plugin.mapManager.getMap(plugin.getServer().getWorld("DR_Hub")).getSpawn());
+		e.getPlayer().setFoodLevel(20);
+		e.getPlayer().setSaturation(20);
 		if(!plugin.preGameTimer.gameStarted) {
 			e.getPlayer().getInventory().clear();
 		}
