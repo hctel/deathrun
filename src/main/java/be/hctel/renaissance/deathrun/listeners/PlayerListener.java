@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Giant;
 import org.bukkit.entity.Player;
@@ -35,7 +36,6 @@ public class PlayerListener implements Listener {
 	public PlayerListener(DeathRun plugin) {
 		this.plugin = plugin;
 	}
-	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
 		switch(e.getTo().clone().add(0,-1,0).getBlock().getType()) {	
@@ -49,8 +49,8 @@ public class PlayerListener implements Listener {
 						Block block = location.clone().add(x, y, z).getBlock();
 						if(block.getState() instanceof Sign) {
 							Sign sign = (Sign) block.getState();
-							int strenght = Integer.parseInt(sign.getLine(0));
-							int duration = Integer.parseInt(sign.getLine(1));
+							int strenght = Integer.parseInt(sign.getSide(Side.FRONT).getLine(0));
+							int duration = Integer.parseInt(sign.getSide(Side.FRONT).getLine(1));
 							e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, duration*20, strenght, false, false));
 							e.getPlayer().sendMessage(plugin.header + String.format("§a§l+ §6§lJump %d §7[%d Seconds]", strenght, duration));
 						}
@@ -69,8 +69,8 @@ public class PlayerListener implements Listener {
 						Block block = location.clone().add(x, y, z).getBlock();
 						if(block.getState() instanceof Sign) {
 							Sign sign = (Sign) block.getState();
-							int strenght = Integer.parseInt(sign.getLine(0));
-							int duration = Integer.parseInt(sign.getLine(1));
+							int strenght = Integer.parseInt(sign.getSide(Side.FRONT).getLine(0));
+							int duration = Integer.parseInt(sign.getSide(Side.FRONT).getLine(1));
 							e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration*20, strenght, false, false));
 							e.getPlayer().sendMessage(plugin.header + String.format("§a§l+ §6§lSpeed %d §7[%d Seconds]", strenght, duration));
 						}
